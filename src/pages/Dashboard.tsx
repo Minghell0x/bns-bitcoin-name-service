@@ -97,7 +97,7 @@ function DashboardContent() {
     }
     setDomains(results)
     setLoading(false)
-  }, [walletAddress])
+  }, [walletAddress, addressHex])
 
   useEffect(() => {
     loadDomains()
