@@ -6,23 +6,13 @@ export default function Landing() {
     <main className="relative overflow-hidden">
       {/* Hero Section */}
       <section className="relative min-h-screen flex flex-col items-center justify-center pt-24 px-6 hero-gradient">
-        {/* Background Visual: Geometric Crystal Prism */}
-        <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[900px]">
-            {/* Central diamond */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] rotate-45 border border-primary/15 bg-gradient-to-br from-primary/5 to-transparent" />
-            {/* Outer ring */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rotate-[22deg] border border-primary/8 bg-gradient-to-tl from-tertiary/3 to-transparent" />
-            {/* Inner shard left */}
-            <div className="absolute top-[30%] left-[20%] w-[200px] h-[300px] -rotate-12 border border-primary/10 bg-gradient-to-b from-primary/6 to-transparent skew-x-6" />
-            {/* Inner shard right */}
-            <div className="absolute top-[25%] right-[22%] w-[180px] h-[280px] rotate-[18deg] border border-tertiary/8 bg-gradient-to-b from-tertiary/4 to-transparent -skew-x-3" />
-            {/* Small accent shards */}
-            <div className="absolute bottom-[28%] left-[35%] w-[120px] h-[180px] rotate-[35deg] border border-primary/10 bg-gradient-to-tr from-primary/4 to-transparent" />
-            <div className="absolute top-[35%] right-[35%] w-[100px] h-[160px] -rotate-[25deg] border border-tertiary/6 bg-gradient-to-bl from-tertiary/3 to-transparent" />
-            {/* Radial glow center */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] rounded-full bg-primary/5 blur-3xl" />
-          </div>
+        {/* Background Visual: Geometric 3D Shard */}
+        <div className="absolute inset-0 z-0 opacity-20 pointer-events-none flex items-center justify-center">
+          <img
+            className="w-full max-w-6xl object-cover mix-blend-lighten"
+            src="https://lh3.googleusercontent.com/aida-public/AB6AXuC5BblAPMJsxrihlMRbcDTUnM89rE_MRiEMxtRUxfrKW_8-uCRHZuSrhWYIemHUL_cSgvSRk4nYCPpTJ1tXBBh1s_80NgF7EfD5Q8N7liNe0lUD6dffeJAgb-u3qyPSNUDE0MhKHBlkZ6go7F43PlKkphWdJ8is39oTefQbvI017CKenS9GGmF-VP5cczSzi1_Asj3b2k41lEmpLz1ak5hXn8jZqhmYdrR5QXZPxoZLLQP4BTE3ME72VNlUZ4qFm_mfllYHZ3Hr9Iwr=w2560"
+            alt="Abstract dark geometric 3D glass shards"
+          />
         </div>
 
         <div className="relative z-10 w-full max-w-5xl mx-auto text-center">
