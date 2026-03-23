@@ -162,7 +162,7 @@ export default function SearchResults() {
             <div className="absolute inset-0 opacity-20 grayscale">
               <img
                 className="w-full h-full object-cover"
-                src="https://lh3.googleusercontent.com/aida-public/AB6AXuB51AUgsAdRr6f25IjGMhhXRsVcmR6OUmi0iDo7x4FqtAaZljye39gbj73ccHbBbCySbEpyo_mHVxXHe2uXrBiWMQwl5wBCMiPi23cErephnUQFZpd0XurVIU_15H8bQNpUj1tRyx1Mo0FtWNT__x-xgsD-HeUdtdFlDKUnOPZb8ERsqLzaHjlll3gHWWz9Y9vpPjIBtxFUWGlsDqSK-It364oiKXcDkfJve3hkbbUKGvq4bISLBKxhdozGUvuShLVI9ALcgP9HwOjc"
+                src="https://lh3.googleusercontent.com/aida-public/AB6AXuB51AUgsAdRr6f25IjGMhhXRsVcmR6OUmi0iDo7x4FqtAaZljye39gbj73ccHbBbCySbEpyo_mHVxXHe2uXrBiWMQwl5wBCMiPi23cErephnUQFZpd0XurVIU_15H8bQNpUj1tRyx1Mo0FtWNT__x-xgsD-HeUdtdFlDKUnOPZb8ERsqLzaHjlll3gHWWz9Y9vpPjIBtxFUWGlsDqSK-It364oiKXcDkfJve3hkbbUKGvq4bISLBKxhdozGUvuShLVI9ALcgP9HwOjc=w2560"
                 alt="Abstract digital block pattern"
               />
             </div>

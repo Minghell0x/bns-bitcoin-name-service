@@ -10,7 +10,7 @@ export default function Landing() {
         <div className="absolute inset-0 z-0 opacity-20 pointer-events-none flex items-center justify-center">
           <img
             className="w-full max-w-6xl object-cover mix-blend-lighten"
-            src="https://lh3.googleusercontent.com/aida-public/AB6AXuC5BblAPMJsxrihlMRbcDTUnM89rE_MRiEMxtRUxfrKW_8-uCRHZuSrhWYIemHUL_cSgvSRk4nYCPpTJ1tXBBh1s_80NgF7EfD5Q8N7liNe0lUD6dffeJAgb-u3qyPSNUDE0MhKHBlkZ6go7F43PlKkphWdJ8is39oTefQbvI017CKenS9GGmF-VP5cczSzi1_Asj3b2k41lEmpLz1ak5hXn8jZqhmYdrR5QXZPxoZLLQP4BTE3ME72VNlUZ4qFm_mfllYHZ3Hr9Iwr"
+            src="https://lh3.googleusercontent.com/aida-public/AB6AXuC5BblAPMJsxrihlMRbcDTUnM89rE_MRiEMxtRUxfrKW_8-uCRHZuSrhWYIemHUL_cSgvSRk4nYCPpTJ1tXBBh1s_80NgF7EfD5Q8N7liNe0lUD6dffeJAgb-u3qyPSNUDE0MhKHBlkZ6go7F43PlKkphWdJ8is39oTefQbvI017CKenS9GGmF-VP5cczSzi1_Asj3b2k41lEmpLz1ak5hXn8jZqhmYdrR5QXZPxoZLLQP4BTE3ME72VNlUZ4qFm_mfllYHZ3Hr9Iwr=w2560"
             alt="Abstract dark geometric 3D glass shards"
           />
         </div>
@@ -67,7 +67,7 @@ export default function Landing() {
               <div className="md:w-1/2 relative bg-surface-container-highest overflow-hidden">
                 <img
                   className="absolute inset-0 w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700 scale-110 group-hover:scale-100"
-                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuDBt4JEjHKad6EbZO1NdH2Ceoa4Nvjvnb3iOmP4XKw2VLLAO7PJc5D0jBvpj-X14hXQd_AK6ycDGfUg5e-IdM9pzch9LrKskZ5D0Jt9LcWKp6bc73jsg_Kw8sT0t9Y5q4OJozOA6WHeM4LnLEs-yZBv3qUgbSogne_qQ_-7LYvo6aP_vJO-zHz4esLoY29tHY5J49igyj2e37bH3tw8kmzWQKR_7iEVjPZT3A7lBmnHA55J5gcIm9o6dBmR89hbZ0ORxo3w9agXc0qj"
+                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuDBt4JEjHKad6EbZO1NdH2Ceoa4Nvjvnb3iOmP4XKw2VLLAO7PJc5D0jBvpj-X14hXQd_AK6ycDGfUg5e-IdM9pzch9LrKskZ5D0Jt9LcWKp6bc73jsg_Kw8sT0t9Y5q4OJozOA6WHeM4LnLEs-yZBv3qUgbSogne_qQ_-7LYvo6aP_vJO-zHz4esLoY29tHY5J49igyj2e37bH3tw8kmzWQKR_7iEVjPZT3A7lBmnHA55J5gcIm9o6dBmR89hbZ0ORxo3w9agXc0qj=w2560"
                   alt="Sleek digital identity card UI concept"
                 />
               </div>
@@ -116,7 +116,7 @@ export default function Landing() {
               <div className="md:w-1/2 h-80 md:h-auto relative">
                 <img
                   className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity duration-700"
-                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuCT--CU8PkVD5zLxJ-XNqJg4-uKgIaYXUt9P6-aynmc9dwSHOzZdiPtP3HC2FKIgZIklG9OgFkgWZhEj0SnUV7QCMvXsPHJLDQd8K1WHBEF0PgCpuii1jdXJJl1C7kdgm7W65ufyZzk6d66L_44pIF11yWNctlnH2fZAg10gciFouk_Y-_kzQx40KiZahVpOoqKuNDKGwLxlIuAHOBE69Tyg5R-Xys8GoHO0ByOijkbdw8inK6Ob5tL8CA7wSKOvC6qL07mtBcWyMt2"
+                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuCT--CU8PkVD5zLxJ-XNqJg4-uKgIaYXUt9P6-aynmc9dwSHOzZdiPtP3HC2FKIgZIklG9OgFkgWZhEj0SnUV7QCMvXsPHJLDQd8K1WHBEF0PgCpuii1jdXJJl1C7kdgm7W65ufyZzk6d66L_44pIF11yWNctlnH2fZAg10gciFouk_Y-_kzQx40KiZahVpOoqKuNDKGwLxlIuAHOBE69Tyg5R-Xys8GoHO0ByOijkbdw8inK6Ob5tL8CA7wSKOvC6qL07mtBcWyMt2=w2560"
                   alt="Technical network infrastructure visualization"
                 />
               </div>
