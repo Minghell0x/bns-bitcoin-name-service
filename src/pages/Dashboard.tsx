@@ -6,7 +6,7 @@ import LoadingSkeleton from '../components/LoadingSkeleton'
 import { useWallet } from '../contexts/WalletContext'
 import { lookupDomain, renewDomainTx, fetchDomainPrice } from '../services/DomainService'
 import { getOwnedDomainNames, addOwnedDomain } from '../utils/storage'
-import { formatAddress, formatDate, formatSats, daysUntilExpiry } from '../utils/formatting'
+import { formatAddress, formatDate, formatSats, daysUntilExpiry, isOwner } from '../utils/formatting'
 import type { DomainInfo } from '../types'
 
 interface EnrichedDomain {
@@ -76,7 +76,7 @@ function DashboardContent() {
     for (const name of names) {
       try {
         const { domain: info } = await lookupDomain(name)
-        if (info.exists && info.owner.toLowerCase() === walletAddress.toLowerCase()) {
+        if (info.exists && isOwner(info.owner, info.ownerHex, info.ownerP2tr, walletAddress, address?.toHex())) {
           const days = daysUntilExpiry(info.expiresAt)
           let status: EnrichedDomain['status'] = 'active'
           if (info.inGracePeriod) status = 'grace-period'
@@ -104,7 +104,7 @@ function DashboardContent() {
       const { domain: info } = await lookupDomain(cleaned)
       if (!info.exists) {
         setImportError('Domain not found')
-      } else if (info.owner.toLowerCase() !== walletAddress.toLowerCase()) {
+      } else if (!isOwner(info.owner, info.ownerHex, info.ownerP2tr, walletAddress, address?.toHex())) {
         setImportError('You are not the owner of this domain')
       } else {
         addOwnedDomain(walletAddress, cleaned)

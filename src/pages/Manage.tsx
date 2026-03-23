@@ -143,7 +143,11 @@ function ManageContent() {
   }
 
   const isOwner = domainInfo && walletAddress
-    ? domainInfo.owner.toLowerCase() === walletAddress.toLowerCase()
+    ? (
+        (domainInfo.ownerHex && address?.toHex() && domainInfo.ownerHex.toLowerCase() === address.toHex().toLowerCase()) ||
+        domainInfo.owner.toLowerCase() === walletAddress.toLowerCase() ||
+        (domainInfo.ownerP2tr && domainInfo.ownerP2tr.toLowerCase() === walletAddress.toLowerCase())
+      )
     : false
 
   if (loading) {

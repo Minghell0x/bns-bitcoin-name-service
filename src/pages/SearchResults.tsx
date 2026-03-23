@@ -19,7 +19,11 @@ export default function SearchResults() {
   const [renewPending, setRenewPending] = useState(false)
   const [renewError, setRenewError] = useState<string | null>(null)
 
-  const isOwner = !!(domain && walletAddress && domain.owner === walletAddress)
+  const isOwnerCheck = !!(domain && walletAddress && (
+    (domain.ownerHex && address?.toHex() && domain.ownerHex.toLowerCase() === address.toHex().toLowerCase()) ||
+    domain.owner.toLowerCase() === walletAddress.toLowerCase() ||
+    (domain.ownerP2tr && domain.ownerP2tr.toLowerCase() === walletAddress.toLowerCase())
+  ))
 
   async function handleRenew() {
     if (!walletAddress) {
@@ -65,7 +69,7 @@ export default function SearchResults() {
   }
 
   const isAvailable = status === 'available'
-  const canRenew = (status === 'grace-period' || status === 'expiring') && isOwner
+  const canRenew = (status === 'grace-period' || status === 'expiring') && isOwnerCheck
 
   return (
     <main className="pt-32 pb-20 px-6 max-w-6xl mx-auto">
@@ -173,7 +177,7 @@ export default function SearchResults() {
                   `Renew ${domainName}.btc`
                 )}
               </button>
-            ) : (status === 'grace-period' || status === 'expiring') && !isOwner && isConnected ? (
+            ) : (status === 'grace-period' || status === 'expiring') && !isOwnerCheck && isConnected ? (
               <div className="flex-1 py-5 px-8 rounded-full bg-surface-container-highest text-outline font-bold text-lg text-center">
                 Only the owner can renew this domain
               </div>

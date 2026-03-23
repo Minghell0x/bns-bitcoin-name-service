@@ -1,6 +1,8 @@
 export interface DomainInfo {
   exists: boolean
   owner: string
+  ownerHex: string
+  ownerP2tr: string
   createdAt: bigint
   expiresAt: bigint
   ttl: bigint

@@ -30,3 +30,29 @@ export function daysUntilExpiry(expiresAt: bigint): number {
   const diff = Number(expiresAt) - now
   return Math.max(0, Math.floor(diff / 86400))
 }
+
+/**
+ * Compare domain owner against connected wallet.
+ * Checks: ownerHex vs addressHex (ML-DSA hash comparison),
+ * ownerP2tr vs walletAddress (Bitcoin address comparison),
+ * and generic string match as fallback.
+ */
+export function isOwner(
+  domainOwner: string,
+  domainOwnerHex: string,
+  domainOwnerP2tr: string,
+  walletAddress: string | null,
+  walletAddressHex?: string | null,
+): boolean {
+  if (!walletAddress) return false
+  const w = walletAddress.toLowerCase()
+  // Primary: compare ML-DSA hashes (most reliable)
+  if (walletAddressHex && domainOwnerHex) {
+    if (domainOwnerHex.toLowerCase() === walletAddressHex.toLowerCase()) return true
+  }
+  // Secondary: compare p2tr addresses
+  if (domainOwnerP2tr && domainOwnerP2tr.toLowerCase() === w) return true
+  // Fallback: generic string match
+  if (domainOwner && domainOwner.toLowerCase() === w) return true
+  return false
+}
