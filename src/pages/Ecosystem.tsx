@@ -75,7 +75,7 @@ export default function Ecosystem() {
     })
 
     // Fetch recent activity
-    fetchRecentActivity(500)
+    fetchRecentActivity(10)
       .then(setRecentActivity)
       .catch(() => {})
       .finally(() => setActivityLoading(false))
@@ -215,7 +215,7 @@ export default function Ecosystem() {
                 <section>
                   <div className="flex justify-between items-center mb-6">
                     <h2 className="text-2xl font-bold font-headline">Recent Activity</h2>
-                    <span className="text-[10px] font-mono text-slate-500 uppercase tracking-widest px-3 py-1 rounded-full bg-surface-container-highest">Last 500 blocks</span>
+                    <span className="text-[10px] font-mono text-slate-500 uppercase tracking-widest px-3 py-1 rounded-full bg-surface-container-highest">Live</span>
                   </div>
                   {activityLoading ? (
                     <div className="bg-surface-container-low rounded-xl p-8 text-center border border-white/5">
@@ -225,7 +225,8 @@ export default function Ecosystem() {
                   ) : recentActivity.length === 0 ? (
                     <div className="bg-surface-container-low rounded-xl p-8 text-center border border-white/5">
                       <span className="material-symbols-outlined text-4xl text-outline/40 mb-2">inbox</span>
-                      <p className="text-on-surface-variant text-sm">No recent activity found in the last 100 blocks.</p>
+                      <p className="text-on-surface-variant text-sm">No BNS activity in recent blocks.</p>
+                      <p className="text-slate-500 text-xs font-mono mt-1">Activity appears here when domains are registered, renewed, or transferred.</p>
                     </div>
                   ) : (
                     <div className="space-y-2">
