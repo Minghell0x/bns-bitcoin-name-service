@@ -6,9 +6,13 @@ export default function Landing() {
     <main className="relative overflow-hidden">
       {/* Hero Section */}
       <section className="relative min-h-screen flex flex-col items-center justify-center pt-24 px-6 hero-gradient">
-        {/* Background Visual */}
-        <div className="absolute inset-0 z-0 opacity-10 pointer-events-none flex items-center justify-center">
-          <div className="w-full max-w-6xl h-full bg-gradient-to-br from-primary-container/10 via-transparent to-tertiary/5 rounded-full blur-3xl" />
+        {/* Background Visual: Geometric 3D Shard */}
+        <div className="absolute inset-0 z-0 opacity-20 pointer-events-none flex items-center justify-center">
+          <img
+            className="w-full max-w-6xl object-cover mix-blend-lighten"
+            src="https://lh3.googleusercontent.com/aida-public/AB6AXuC5BblAPMJsxrihlMRbcDTUnM89rE_MRiEMxtRUxfrKW_8-uCRHZuSrhWYIemHUL_cSgvSRk4nYCPpTJ1tXBBh1s_80NgF7EfD5Q8N7liNe0lUD6dffeJAgb-u3qyPSNUDE0MhKHBlkZ6go7F43PlKkphWdJ8is39oTefQbvI017CKenS9GGmF-VP5cczSzi1_Asj3b2k41lEmpLz1ak5hXn8jZqhmYdrR5QXZPxoZLLQP4BTE3ME72VNlUZ4qFm_mfllYHZ3Hr9Iwr"
+            alt="Abstract dark geometric 3D glass shards"
+          />
         </div>
 
         <div className="relative z-10 w-full max-w-5xl mx-auto text-center">
@@ -55,18 +59,17 @@ export default function Landing() {
                     robust network in history.
                   </p>
                 </div>
-                <div className="mt-8 flex items-center gap-2 text-primary font-headline font-bold text-sm cursor-pointer hover:gap-3 transition-all">
+                <div className="mt-8 flex items-center gap-2 text-primary font-headline font-bold text-sm">
                   View Identity Specs{' '}
                   <span className="material-symbols-outlined text-sm">arrow_forward</span>
                 </div>
               </div>
-              <div className="md:w-1/2 relative bg-surface-container-highest min-h-[280px] overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-br from-primary-container/20 to-tertiary/10 opacity-60 group-hover:opacity-100 transition-opacity duration-700" />
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="text-6xl font-extrabold font-headline text-primary/20 group-hover:text-primary/40 transition-colors duration-700">
-                    .btc
-                  </div>
-                </div>
+              <div className="md:w-1/2 relative bg-surface-container-highest overflow-hidden">
+                <img
+                  className="absolute inset-0 w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700 scale-110 group-hover:scale-100"
+                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuDBt4JEjHKad6EbZO1NdH2Ceoa4Nvjvnb3iOmP4XKw2VLLAO7PJc5D0jBvpj-X14hXQd_AK6ycDGfUg5e-IdM9pzch9LrKskZ5D0Jt9LcWKp6bc73jsg_Kw8sT0t9Y5q4OJozOA6WHeM4LnLEs-yZBv3qUgbSogne_qQ_-7LYvo6aP_vJO-zHz4esLoY29tHY5J49igyj2e37bH3tw8kmzWQKR_7iEVjPZT3A7lBmnHA55J5gcIm9o6dBmR89hbZ0ORxo3w9agXc0qj"
+                  alt="Sleek digital identity card UI concept"
+                />
               </div>
             </div>
           </div>
@@ -110,15 +113,12 @@ export default function Landing() {
                   </button>
                 </div>
               </div>
-              <div className="md:w-1/2 h-80 md:h-auto relative bg-surface-container-highest">
-                <div className="absolute inset-0 bg-gradient-to-tl from-tertiary/10 to-primary-container/10 opacity-40 group-hover:opacity-80 transition-opacity duration-700" />
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="grid grid-cols-3 gap-4 p-8 opacity-30 group-hover:opacity-60 transition-opacity">
-                    {Array.from({ length: 9 }).map((_, i) => (
-                      <div key={i} className="w-12 h-12 rounded-lg bg-primary/20 border border-primary/10" />
-                    ))}
-                  </div>
-                </div>
+              <div className="md:w-1/2 h-80 md:h-auto relative">
+                <img
+                  className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity duration-700"
+                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuCT--CU8PkVD5zLxJ-XNqJg4-uKgIaYXUt9P6-aynmc9dwSHOzZdiPtP3HC2FKIgZIklG9OgFkgWZhEj0SnUV7QCMvXsPHJLDQd8K1WHBEF0PgCpuii1jdXJJl1C7kdgm7W65ufyZzk6d66L_44pIF11yWNctlnH2fZAg10gciFouk_Y-_kzQx40KiZahVpOoqKuNDKGwLxlIuAHOBE69Tyg5R-Xys8GoHO0ByOijkbdw8inK6Ob5tL8CA7wSKOvC6qL07mtBcWyMt2"
+                  alt="Technical network infrastructure visualization"
+                />
               </div>
             </div>
           </div>

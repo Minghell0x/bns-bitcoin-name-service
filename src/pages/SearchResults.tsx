@@ -159,11 +159,17 @@ export default function SearchResults() {
             </div>
           </div>
           <div className="bg-surface-container-high h-64 lg:h-auto flex items-center justify-center relative">
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-tertiary/5" />
+            <div className="absolute inset-0 opacity-20 grayscale">
+              <img
+                className="w-full h-full object-cover"
+                src="https://lh3.googleusercontent.com/aida-public/AB6AXuB51AUgsAdRr6f25IjGMhhXRsVcmR6OUmi0iDo7x4FqtAaZljye39gbj73ccHbBbCySbEpyo_mHVxXHe2uXrBiWMQwl5wBCMiPi23cErephnUQFZpd0XurVIU_15H8bQNpUj1tRyx1Mo0FtWNT__x-xgsD-HeUdtdFlDKUnOPZb8ERsqLzaHjlll3gHWWz9Y9vpPjIBtxFUWGlsDqSK-It364oiKXcDkfJve3hkbbUKGvq4bISLBKxhdozGUvuShLVI9ALcgP9HwOjc"
+                alt="Abstract digital block pattern"
+              />
+            </div>
             <div className="relative z-10 p-8 border border-primary/20 backdrop-blur-md rounded-lg bg-background/40 font-mono text-primary text-xs flex flex-col gap-2">
+              <span>COMMIT: 02.24.2024</span>
               <span>STATUS: PENDING_BROADCAST</span>
               <span>FEE_RATE: 24 SAT/VB</span>
-              <span>BLOCK_HT: 842,912</span>
             </div>
           </div>
         </div>
