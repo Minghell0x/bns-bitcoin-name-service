@@ -98,118 +98,201 @@ export default function Ecosystem() {
         <div className="max-w-[1400px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-10">
           {/* Left: Primary Content */}
           <div className="lg:col-span-8 space-y-12">
-            {/* Featured Auction */}
-            {featured?.price && (
-              <section className="relative h-[500px] rounded-lg overflow-hidden bg-surface-container-low group">
-                <div className="absolute inset-0 bg-gradient-to-br from-[#111317] via-transparent to-[#e8910c]/10 z-10" />
-                <div className="absolute inset-0 opacity-30 mix-blend-overlay">
-                  <img
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuB1J6mJBMRGJOkHQaiehdy1ziAlfDqzi_JxGz0Snw-rFem4SsVE3wUtEYv77rIxrfFWcsEbRIdWsZNVp8GCR3ibQMcWZvZ3Spx374algqF8X7Xx92lIj6_x-U0eia86lKfu1fc76Z9UIRWneF0U2XVYg17-eO5m03h-eqU9jN03UTF5dmUgyM26U_y8ZLcl0L6EFlXnbmv1oTEOm0BdOAFM5S6Hoga8fxaf7kUI9rjXrVorDItnhqh6al2j52tG579oBrLxGbO51QLy=w2560"
-                    alt="Featured Domain"
-                  />
-                </div>
-                <div className="relative z-20 h-full p-12 flex flex-col justify-between">
-                  <div className="flex justify-between items-start">
-                    <span className="px-4 py-1.5 rounded-full bg-primary-container/20 text-primary font-mono text-xs border border-primary/30 backdrop-blur-md">
-                      DUTCH AUCTION • PRICE DECLINING
-                    </span>
-                    <div className="text-right">
-                      <p className="text-slate-400 text-xs font-mono mb-1 uppercase tracking-widest">Current Price</p>
-                      <p className="text-tertiary font-mono text-3xl font-bold">
-                        {formatSats(featured.price.totalPriceSats)}
-                      </p>
+            {filter === 'all' ? (
+              <>
+                {/* Featured Auction Hero */}
+                {featured?.price && (
+                  <section className="relative h-[500px] rounded-lg overflow-hidden bg-surface-container-low group">
+                    <div className="absolute inset-0 bg-gradient-to-br from-[#111317] via-transparent to-[#e8910c]/10 z-10" />
+                    <div className="absolute inset-0 opacity-30 mix-blend-overlay">
+                      <img
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuB1J6mJBMRGJOkHQaiehdy1ziAlfDqzi_JxGz0Snw-rFem4SsVE3wUtEYv77rIxrfFWcsEbRIdWsZNVp8GCR3ibQMcWZvZ3Spx374algqF8X7Xx92lIj6_x-U0eia86lKfu1fc76Z9UIRWneF0U2XVYg17-eO5m03h-eqU9jN03UTF5dmUgyM26U_y8ZLcl0L6EFlXnbmv1oTEOm0BdOAFM5S6Hoga8fxaf7kUI9rjXrVorDItnhqh6al2j52tG579oBrLxGbO51QLy=w2560"
+                        alt="Featured Domain"
+                      />
                     </div>
-                  </div>
-                  <div>
-                    <h1 className="text-7xl font-extrabold tracking-tighter font-headline mb-4">
-                      {featured.name}<span className="text-primary font-mono">.btc</span>
-                    </h1>
-                    <div className="flex items-end gap-12">
-                      <div>
-                        <p className="text-slate-400 text-xs font-mono mb-1 uppercase tracking-widest">Auction Premium</p>
-                        <div className="flex items-baseline gap-2">
-                          <span className="text-2xl font-bold text-on-background">
-                            {formatSats(featured.price.auctionPriceSats)}
-                          </span>
-                          <span className="text-xs text-slate-500 font-mono">above base</span>
+                    <div className="relative z-20 h-full p-12 flex flex-col justify-between">
+                      <div className="flex justify-between items-start">
+                        <span className="px-4 py-1.5 rounded-full bg-primary-container/20 text-primary font-mono text-xs border border-primary/30 backdrop-blur-md">
+                          DUTCH AUCTION • PRICE DECLINING
+                        </span>
+                        <div className="text-right">
+                          <p className="text-slate-400 text-xs font-mono mb-1 uppercase tracking-widest">Current Price</p>
+                          <p className="text-tertiary font-mono text-3xl font-bold">
+                            {formatSats(featured.price.totalPriceSats)}
+                          </p>
                         </div>
                       </div>
-                      <Link
-                        to={`/register/${featured.name}?years=1`}
-                        className="primary-gradient text-[#2b1700] px-10 py-4 rounded-full font-bold text-lg hover:shadow-2xl hover:shadow-primary/20 transition-all active:scale-95"
-                      >
-                        Buy Now
-                      </Link>
+                      <div>
+                        <h1 className="text-7xl font-extrabold tracking-tighter font-headline mb-4">
+                          {featured.name}<span className="text-primary font-mono">.btc</span>
+                        </h1>
+                        <div className="flex items-end gap-12">
+                          <div>
+                            <p className="text-slate-400 text-xs font-mono mb-1 uppercase tracking-widest">Auction Premium</p>
+                            <div className="flex items-baseline gap-2">
+                              <span className="text-2xl font-bold text-on-background">
+                                {formatSats(featured.price.auctionPriceSats)}
+                              </span>
+                              <span className="text-xs text-slate-500 font-mono">above base</span>
+                            </div>
+                          </div>
+                          <Link
+                            to={`/register/${featured.name}?years=1`}
+                            className="primary-gradient text-[#2b1700] px-10 py-4 rounded-full font-bold text-lg hover:shadow-2xl hover:shadow-primary/20 transition-all active:scale-95"
+                          >
+                            Buy Now
+                          </Link>
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-3 border-t border-white/5 pt-8">
+                        <div>
+                          <p className="text-slate-500 text-[10px] uppercase font-mono mb-1">Base Price</p>
+                          <p className="text-slate-300 text-xs font-mono">{basePrice ? formatSats(basePrice) : '...'}</p>
+                        </div>
+                        <div>
+                          <p className="text-slate-500 text-[10px] uppercase font-mono mb-1">Renewal</p>
+                          <p className="text-slate-300 text-xs font-mono">{formatSats(featured.price.renewalPerYear)}/yr</p>
+                        </div>
+                        <div>
+                          <p className="text-slate-500 text-[10px] uppercase font-mono mb-1">Mechanism</p>
+                          <p className="text-slate-300 text-xs font-mono">Price declines per block</p>
+                        </div>
+                      </div>
                     </div>
+                  </section>
+                )}
+
+                {/* Auction Grid */}
+                <section>
+                  <div className="flex justify-between items-center mb-8">
+                    <h2 className="text-2xl font-bold font-headline">Premium Domains</h2>
+                    <p className="text-slate-400 text-xs font-mono">Prices decline every block until bought</p>
                   </div>
-                  <div className="grid grid-cols-3 border-t border-white/5 pt-8">
-                    <div>
-                      <p className="text-slate-500 text-[10px] uppercase font-mono mb-1">Base Price</p>
-                      <p className="text-slate-300 text-xs font-mono">{basePrice ? formatSats(basePrice) : '...'}</p>
-                    </div>
-                    <div>
-                      <p className="text-slate-500 text-[10px] uppercase font-mono mb-1">Renewal</p>
-                      <p className="text-slate-300 text-xs font-mono">{formatSats(featured.price.renewalPerYear)}/yr</p>
-                    </div>
-                    <div>
-                      <p className="text-slate-500 text-[10px] uppercase font-mono mb-1">Mechanism</p>
-                      <p className="text-slate-300 text-xs font-mono">Price declines per block</p>
-                    </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {auctions.slice(1).map((entry) => (
+                      <div key={entry.name} className="bg-surface-container-low rounded-lg p-6 hover:bg-surface-container transition-all group border border-transparent hover:border-white/5">
+                        <div className="flex justify-between items-start mb-10">
+                          <div>
+                            <h3 className="text-3xl font-extrabold font-headline mb-1">
+                              {entry.name}<span className="text-primary font-mono text-xl">.btc</span>
+                            </h3>
+                            {entry.price && entry.price.auctionPriceSats > 0n && (
+                              <p className="text-[10px] font-mono text-slate-500 px-2 py-0.5 rounded bg-surface-container-high w-fit uppercase">
+                                Premium — Dutch Auction
+                              </p>
+                            )}
+                          </div>
+                          <div className="text-right">
+                            <p className="text-tertiary text-lg font-mono font-bold">
+                              {entry.loading ? '...' : entry.price ? formatSats(entry.price.totalPriceSats) : 'N/A'}
+                            </p>
+                            <p className="text-[9px] text-slate-500 font-mono uppercase">Current Price</p>
+                          </div>
+                        </div>
+                        <div className="flex justify-between items-end">
+                          <div>
+                            {entry.price && (
+                              <>
+                                <p className="text-slate-500 text-[10px] font-mono mb-1">AUCTION PREMIUM</p>
+                                <p className="text-sm font-mono text-on-surface-variant">{formatSats(entry.price.auctionPriceSats)}</p>
+                              </>
+                            )}
+                          </div>
+                          <Link
+                            to={`/register/${entry.name}?years=1`}
+                            className="px-6 py-2 rounded-full border border-primary/40 text-primary text-xs font-bold hover:bg-primary/10 transition-colors"
+                          >
+                            Buy Now
+                          </Link>
+                        </div>
+                      </div>
+                    ))}
                   </div>
+                </section>
+              </>
+            ) : (
+              /* ── DECLINING NOW VIEW ── */
+              <section>
+                <div className="mb-8">
+                  <h2 className="text-3xl font-bold font-headline tracking-tight mb-2">Declining Now</h2>
+                  <p className="text-slate-400 text-sm">Premium domains with active price decay — sorted by highest premium above base price.</p>
+                </div>
+
+                <div className="space-y-4">
+                  {auctions
+                    .filter((e) => e.price && e.price.auctionPriceSats > 0n)
+                    .sort((a, b) => {
+                      const ap = a.price?.auctionPriceSats ?? 0n
+                      const bp = b.price?.auctionPriceSats ?? 0n
+                      return bp > ap ? 1 : bp < ap ? -1 : 0
+                    })
+                    .map((entry) => {
+                      const premium = entry.price!.auctionPriceSats
+                      const total = entry.price!.totalPriceSats
+                      const base = basePrice ?? 1n
+                      const premiumPct = base > 0n ? Number((premium * 100n) / base) : 0
+                      return (
+                        <div key={entry.name} className="bg-surface-container-low rounded-xl p-6 hover:bg-surface-container transition-all border border-transparent hover:border-white/5">
+                          <div className="flex items-center justify-between mb-4">
+                            <div className="flex items-center gap-4">
+                              <div className="w-12 h-12 rounded-xl bg-surface-container-high flex items-center justify-center text-primary font-mono font-bold text-lg">
+                                {entry.name[0]}.
+                              </div>
+                              <div>
+                                <h3 className="text-2xl font-extrabold font-headline">
+                                  {entry.name}<span className="text-primary font-mono">.btc</span>
+                                </h3>
+                                <p className="text-[10px] font-mono text-slate-500 uppercase">
+                                  {premiumPct}% above base price
+                                </p>
+                              </div>
+                            </div>
+                            <div className="text-right">
+                              <p className="text-2xl font-mono font-bold text-tertiary">{formatSats(total)}</p>
+                              <p className="text-[10px] font-mono text-slate-500 uppercase">Current Price</p>
+                            </div>
+                          </div>
+
+                          {/* Premium decay bar */}
+                          <div className="mb-4">
+                            <div className="flex justify-between text-[10px] font-mono text-slate-500 mb-1">
+                              <span>Base: {basePrice ? formatSats(basePrice) : '...'}</span>
+                              <span>Premium: {formatSats(premium)}</span>
+                            </div>
+                            <div className="w-full h-2 bg-surface-container-highest rounded-full overflow-hidden">
+                              <div
+                                className="h-full bg-gradient-to-r from-primary-container to-primary rounded-full transition-all duration-500"
+                                style={{ width: `${Math.min(100, premiumPct > 0 ? Math.max(5, 100 - premiumPct / 10) : 100)}%` }}
+                              />
+                            </div>
+                            <div className="flex justify-between text-[10px] font-mono text-slate-500 mt-1">
+                              <span className="text-emerald-400">Declining every block</span>
+                              <span>Renewal: {formatSats(entry.price!.renewalPerYear)}/yr</span>
+                            </div>
+                          </div>
+
+                          <div className="flex justify-end">
+                            <Link
+                              to={`/register/${entry.name}?years=1`}
+                              className="px-8 py-3 rounded-full primary-gradient text-[#2b1700] font-bold text-sm hover:shadow-lg hover:shadow-primary/20 transition-all active:scale-95"
+                            >
+                              Buy at Current Price
+                            </Link>
+                          </div>
+                        </div>
+                      )
+                    })}
+
+                  {auctions.filter((e) => e.price && e.price.auctionPriceSats > 0n).length === 0 && (
+                    <div className="text-center py-16">
+                      <span className="material-symbols-outlined text-5xl text-outline mb-4">trending_flat</span>
+                      <p className="text-on-surface-variant">No domains currently declining. All at base price.</p>
+                    </div>
+                  )}
                 </div>
               </section>
             )}
-
-            {/* Auction Grid */}
-            <section>
-              <div className="flex justify-between items-center mb-8">
-                <h2 className="text-2xl font-bold font-headline">Premium Domains</h2>
-                <p className="text-slate-400 text-xs font-mono">Prices decline every block until bought</p>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {auctions.slice(1)
-                  .filter((e) => filter === 'all' || (e.price && e.price.auctionPriceSats > 0n))
-                  .map((entry) => (
-                  <div key={entry.name} className="bg-surface-container-low rounded-lg p-6 hover:bg-surface-container transition-all group border border-transparent hover:border-white/5">
-                    <div className="flex justify-between items-start mb-10">
-                      <div>
-                        <h3 className="text-3xl font-extrabold font-headline mb-1">
-                          {entry.name}<span className="text-primary font-mono text-xl">.btc</span>
-                        </h3>
-                        {entry.price && entry.price.auctionPriceSats > 0n && (
-                          <p className="text-[10px] font-mono text-slate-500 px-2 py-0.5 rounded bg-surface-container-high w-fit uppercase">
-                            Premium — Dutch Auction
-                          </p>
-                        )}
-                      </div>
-                      <div className="text-right">
-                        <p className="text-tertiary text-lg font-mono font-bold">
-                          {entry.loading ? '...' : entry.price ? formatSats(entry.price.totalPriceSats) : 'N/A'}
-                        </p>
-                        <p className="text-[9px] text-slate-500 font-mono uppercase">Current Price</p>
-                      </div>
-                    </div>
-                    <div className="flex justify-between items-end">
-                      <div>
-                        {entry.price && (
-                          <>
-                            <p className="text-slate-500 text-[10px] font-mono mb-1">AUCTION PREMIUM</p>
-                            <p className="text-sm font-mono text-on-surface-variant">{formatSats(entry.price.auctionPriceSats)}</p>
-                          </>
-                        )}
-                      </div>
-                      <Link
-                        to={`/register/${entry.name}?years=1`}
-                        className="px-6 py-2 rounded-full border border-primary/40 text-primary text-xs font-bold hover:bg-primary/10 transition-colors"
-                      >
-                        Buy Now
-                      </Link>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </section>
           </div>
 
           {/* Right: Stats Sidebar */}
