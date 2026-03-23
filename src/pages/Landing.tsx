@@ -10,7 +10,7 @@ export default function Landing() {
         <div className="absolute inset-0 z-0 opacity-20 pointer-events-none flex items-center justify-center">
           <img
             className="w-full max-w-6xl object-cover mix-blend-lighten"
-            src="https://lh3.googleusercontent.com/aida-public/AB6AXuC5BblAPMJsxrihlMRbcDTUnM89rE_MRiEMxtRUxfrKW_8-uCRHZuSrhWYIemHUL_cSgvSRk4nYCPpTJ1tXBBh1s_80NgF7EfD5Q8N7liNe0lUD6dffeJAgb-u3qyPSNUDE0MhKHBlkZ6go7F43PlKkphWdJ8is39oTefQbvI017CKenS9GGmF-VP5cczSzi1_Asj3b2k41lEmpLz1ak5hXn8jZqhmYdrR5QXZPxoZLLQP4BTE3ME72VNlUZ4qFm_mfllYHZ3Hr9Iwr=w2560"
+            src="/bns_bg.png"
             alt="Abstract dark geometric 3D glass shards"
           />
         </div>
