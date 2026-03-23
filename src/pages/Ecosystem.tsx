@@ -2,9 +2,16 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { fetchDomainPrice, fetchBasePrice } from '../services/DomainService'
 import { formatSats } from '../utils/formatting'
+import SearchBar from '../components/SearchBar'
 import type { DomainPrice } from '../types'
 
 const PREMIUM_DOMAINS = ['satoshi', 'bitcoin', 'hal', 'genesis', 'ordinal', 'nakamoto', 'block', 'node']
+
+const FEATURED_MARKETPLACE = [
+  { name: 'wallet', description: 'Essential Web3 identity' },
+  { name: 'defi', description: 'Decentralized finance brand' },
+  { name: 'stack', description: 'Developer-focused identity' },
+]
 
 interface AuctionEntry {
   name: string
@@ -12,13 +19,18 @@ interface AuctionEntry {
   loading: boolean
 }
 
+type ViewFilter = 'marketplace' | 'auctions'
+
 export default function Ecosystem() {
   const [auctions, setAuctions] = useState<AuctionEntry[]>(
     PREMIUM_DOMAINS.map((name) => ({ name, price: null, loading: true })),
   )
   const [basePrice, setBasePrice] = useState<bigint | null>(null)
   const [featured, setFeatured] = useState<AuctionEntry | null>(null)
-  const [filter, setFilter] = useState<'all' | 'declining'>('all')
+  const [filter, setFilter] = useState<ViewFilter>('marketplace')
+
+  const [marketplacePrices, setMarketplacePrices] = useState<Record<string, DomainPrice | null>>({})
+  const [marketplaceLoading, setMarketplaceLoading] = useState(true)
 
   useEffect(() => {
     fetchBasePrice().then(setBasePrice).catch(() => {})
@@ -41,11 +53,28 @@ export default function Ecosystem() {
           })
         })
     })
+
+    // Fetch marketplace featured prices
+    Promise.all(
+      FEATURED_MARKETPLACE.map(async (item) => {
+        try {
+          const price = await fetchDomainPrice(item.name, 1)
+          return { name: item.name, price }
+        } catch {
+          return { name: item.name, price: null }
+        }
+      }),
+    ).then((results) => {
+      const prices: Record<string, DomainPrice | null> = {}
+      results.forEach((r) => { prices[r.name] = r.price })
+      setMarketplacePrices(prices)
+      setMarketplaceLoading(false)
+    })
   }, [])
 
   return (
     <div className="flex">
-      {/* Sidebar */}
+      {/* Sidebar — visible xl+ */}
       <aside className="h-screen w-64 fixed left-0 top-0 pt-24 pb-8 bg-[#1a1c1f] border-r border-white/5 flex-col z-40 hidden xl:flex">
         <div className="px-6 mb-8">
           <div className="flex items-center gap-3 p-3 rounded-2xl bg-surface-container">
@@ -53,34 +82,34 @@ export default function Ecosystem() {
               <div className="w-full h-full rounded-full bg-gradient-to-br from-primary-container to-tertiary opacity-80" />
             </div>
             <div className="overflow-hidden">
-              <p className="text-primary font-bold text-xs font-mono truncate">Dutch Auctions</p>
-              <p className="text-slate-500 text-[10px] font-mono">Premium Domains</p>
+              <p className="text-primary font-bold text-xs font-mono truncate">BTC Domains</p>
+              <p className="text-slate-500 text-[10px] font-mono">Explore & Register</p>
             </div>
           </div>
         </div>
 
         <div className="flex-1 space-y-1 font-mono text-sm">
           <button
-            onClick={() => setFilter('all')}
+            onClick={() => setFilter('marketplace')}
             className={`w-full flex items-center gap-3 px-6 py-3 transition-colors text-left ${
-              filter === 'all'
+              filter === 'marketplace'
+                ? 'bg-gradient-to-r from-[#e8910c]/20 to-transparent text-primary border-l-4 border-primary-container'
+                : 'text-slate-500 hover:text-slate-300 hover:bg-surface-container'
+            }`}
+          >
+            <span className="material-symbols-outlined text-lg">storefront</span>
+            Marketplace
+          </button>
+          <button
+            onClick={() => setFilter('auctions')}
+            className={`w-full flex items-center gap-3 px-6 py-3 transition-colors text-left ${
+              filter === 'auctions'
                 ? 'bg-gradient-to-r from-[#e8910c]/20 to-transparent text-primary border-l-4 border-primary-container'
                 : 'text-slate-500 hover:text-slate-300 hover:bg-surface-container'
             }`}
           >
             <span className="material-symbols-outlined text-lg">gavel</span>
-            All Domains
-          </button>
-          <button
-            onClick={() => setFilter('declining')}
-            className={`w-full flex items-center gap-3 px-6 py-3 transition-colors text-left ${
-              filter === 'declining'
-                ? 'bg-gradient-to-r from-[#e8910c]/20 to-transparent text-primary border-l-4 border-primary-container'
-                : 'text-slate-500 hover:text-slate-300 hover:bg-surface-container'
-            }`}
-          >
-            <span className="material-symbols-outlined text-lg">trending_down</span>
-            Declining Now
+            Dutch Auctions
           </button>
           <Link to="/dashboard" className="flex items-center gap-3 text-slate-500 hover:text-slate-300 hover:bg-surface-container px-6 py-3 transition-colors">
             <span className="material-symbols-outlined text-lg">person_pin</span>
@@ -93,13 +122,114 @@ export default function Ecosystem() {
         </div>
       </aside>
 
+      {/* Mobile tab bar — visible below xl */}
+      <div className="fixed top-16 left-0 right-0 z-30 bg-[#1a1c1f]/95 backdrop-blur-md border-b border-white/5 xl:hidden">
+        <div className="flex">
+          <button
+            onClick={() => setFilter('marketplace')}
+            className={`flex-1 py-3 text-center text-xs font-mono font-bold transition-colors ${
+              filter === 'marketplace'
+                ? 'text-primary border-b-2 border-primary'
+                : 'text-slate-500 hover:text-slate-300'
+            }`}
+          >
+            Marketplace
+          </button>
+          <button
+            onClick={() => setFilter('auctions')}
+            className={`flex-1 py-3 text-center text-xs font-mono font-bold transition-colors ${
+              filter === 'auctions'
+                ? 'text-primary border-b-2 border-primary'
+                : 'text-slate-500 hover:text-slate-300'
+            }`}
+          >
+            Auctions
+          </button>
+        </div>
+      </div>
+
       {/* Main Content */}
-      <main className="xl:ml-64 pt-28 pb-12 px-8 flex-1">
+      <main className="xl:ml-64 pt-36 xl:pt-28 pb-12 px-8 flex-1">
         <div className="max-w-[1400px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-10">
           {/* Left: Primary Content */}
           <div className="lg:col-span-8 space-y-12">
-            {filter === 'all' ? (
+            {filter === 'marketplace' ? (
               <>
+                {/* ── MARKETPLACE VIEW ── */}
+
+                {/* Search */}
+                <section>
+                  <h2 className="text-3xl font-bold font-headline tracking-tight mb-2">Find Your .btc Domain</h2>
+                  <p className="text-slate-400 text-sm mb-6">Search for the perfect Bitcoin-native identity.</p>
+                  <SearchBar size="compact" />
+                </section>
+
+                {/* Featured Names */}
+                <section>
+                  <div className="flex justify-between items-center mb-8">
+                    <h2 className="text-2xl font-bold font-headline">Featured Names</h2>
+                    <p className="text-slate-400 text-xs font-mono">Premium domains available now</p>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {FEATURED_MARKETPLACE.map((item) => {
+                      const mp = marketplacePrices[item.name]
+                      return (
+                        <div key={item.name} className="bg-surface-container-low rounded-lg p-6 hover:bg-surface-container transition-all group border border-transparent hover:border-white/5">
+                          <div className="w-12 h-12 rounded-xl bg-surface-container-high flex items-center justify-center text-primary font-mono font-bold text-lg mb-4">
+                            {item.name[0]}.
+                          </div>
+                          <h3 className="text-2xl font-extrabold font-headline mb-1">
+                            {item.name}<span className="text-primary font-mono text-base">.btc</span>
+                          </h3>
+                          <p className="text-[11px] text-slate-500 mb-6">{item.description}</p>
+                          <div className="flex justify-between items-end">
+                            <div>
+                              <p className="text-slate-500 text-[10px] font-mono uppercase">Price</p>
+                              <p className="text-tertiary font-mono font-bold">
+                                {marketplaceLoading ? '...' : mp ? formatSats(mp.totalPriceSats) : 'N/A'}
+                              </p>
+                            </div>
+                            <Link
+                              to={`/register/${item.name}?years=1`}
+                              className="px-5 py-2 rounded-full border border-primary/40 text-primary text-xs font-bold hover:bg-primary/10 transition-colors"
+                            >
+                              Register
+                            </Link>
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </section>
+
+                {/* Quick Register */}
+                <section>
+                  <h2 className="text-2xl font-bold font-headline mb-6">Quick Register</h2>
+                  <p className="text-slate-400 text-sm mb-8">Get your .btc domain in three simple steps.</p>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {[
+                      { step: '1', icon: 'search', title: 'Search', desc: 'Enter the domain name you want and check availability.' },
+                      { step: '2', icon: 'shopping_cart', title: 'Choose Duration', desc: 'Select how many years to register (1-5 years).' },
+                      { step: '3', icon: 'check_circle', title: 'Confirm & Pay', desc: 'Connect your wallet, sign the transaction, and you own it.' },
+                    ].map((s) => (
+                      <div key={s.step} className="bg-surface-container-low rounded-xl p-6 border border-transparent hover:border-white/5 transition-all">
+                        <div className="flex items-center gap-3 mb-4">
+                          <div className="w-10 h-10 rounded-full primary-gradient text-[#2b1700] flex items-center justify-center font-bold text-sm">
+                            {s.step}
+                          </div>
+                          <span className="material-symbols-outlined text-primary text-xl">{s.icon}</span>
+                        </div>
+                        <h4 className="font-bold font-headline text-lg mb-1">{s.title}</h4>
+                        <p className="text-slate-400 text-xs leading-relaxed">{s.desc}</p>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              </>
+            ) : (
+              <>
+                {/* ── DUTCH AUCTIONS VIEW ── */}
+
                 {/* Featured Auction Hero */}
                 {featured?.price && (
                   <section className="relative h-[500px] rounded-lg overflow-hidden bg-surface-container-low group">
@@ -114,7 +244,7 @@ export default function Ecosystem() {
                     <div className="relative z-20 h-full p-12 flex flex-col justify-between">
                       <div className="flex justify-between items-start">
                         <span className="px-4 py-1.5 rounded-full bg-primary-container/20 text-primary font-mono text-xs border border-primary/30 backdrop-blur-md">
-                          DUTCH AUCTION • PRICE DECLINING
+                          DUTCH AUCTION - PRICE DECLINING
                         </span>
                         <div className="text-right">
                           <p className="text-slate-400 text-xs font-mono mb-1 uppercase tracking-widest">Current Price</p>
@@ -163,7 +293,7 @@ export default function Ecosystem() {
                   </section>
                 )}
 
-                {/* Auction Grid */}
+                {/* Auction Grid — Premium Domain Cards */}
                 <section>
                   <div className="flex justify-between items-center mb-8">
                     <h2 className="text-2xl font-bold font-headline">Premium Domains</h2>
@@ -210,92 +340,92 @@ export default function Ecosystem() {
                     ))}
                   </div>
                 </section>
+
+                {/* Declining List with progress bars */}
+                <section>
+                  <div className="mb-8">
+                    <h2 className="text-3xl font-bold font-headline tracking-tight mb-2">Declining Now</h2>
+                    <p className="text-slate-400 text-sm">Premium domains with active price decay — sorted by highest premium above base price.</p>
+                  </div>
+
+                  <div className="space-y-4">
+                    {auctions
+                      .filter((e) => e.price && e.price.auctionPriceSats > 0n)
+                      .sort((a, b) => {
+                        const ap = a.price?.auctionPriceSats ?? 0n
+                        const bp = b.price?.auctionPriceSats ?? 0n
+                        return bp > ap ? 1 : bp < ap ? -1 : 0
+                      })
+                      .map((entry) => {
+                        const premium = entry.price!.auctionPriceSats
+                        const total = entry.price!.totalPriceSats
+                        const base = basePrice ?? 1n
+                        const premiumPct = base > 0n ? Number((premium * 100n) / base) : 0
+                        return (
+                          <div key={entry.name} className="bg-surface-container-low rounded-xl p-6 hover:bg-surface-container transition-all border border-transparent hover:border-white/5">
+                            <div className="flex items-center justify-between mb-4">
+                              <div className="flex items-center gap-4">
+                                <div className="w-12 h-12 rounded-xl bg-surface-container-high flex items-center justify-center text-primary font-mono font-bold text-lg">
+                                  {entry.name[0]}.
+                                </div>
+                                <div>
+                                  <h3 className="text-2xl font-extrabold font-headline">
+                                    {entry.name}<span className="text-primary font-mono">.btc</span>
+                                  </h3>
+                                  <p className="text-[10px] font-mono text-slate-500 uppercase">
+                                    {premiumPct}% above base price
+                                  </p>
+                                </div>
+                              </div>
+                              <div className="text-right">
+                                <p className="text-2xl font-mono font-bold text-tertiary">{formatSats(total)}</p>
+                                <p className="text-[10px] font-mono text-slate-500 uppercase">Current Price</p>
+                              </div>
+                            </div>
+
+                            {/* Premium decay bar */}
+                            <div className="mb-4">
+                              <div className="flex justify-between text-[10px] font-mono text-slate-500 mb-1">
+                                <span>Base: {basePrice ? formatSats(basePrice) : '...'}</span>
+                                <span>Premium: {formatSats(premium)}</span>
+                              </div>
+                              <div className="w-full h-2 bg-surface-container-highest rounded-full overflow-hidden">
+                                <div
+                                  className="h-full bg-gradient-to-r from-primary-container to-primary rounded-full transition-all duration-500"
+                                  style={{ width: `${Math.min(100, premiumPct > 0 ? Math.max(5, 100 - premiumPct / 10) : 100)}%` }}
+                                />
+                              </div>
+                              <div className="flex justify-between text-[10px] font-mono text-slate-500 mt-1">
+                                <span className="text-emerald-400">Declining every block</span>
+                                <span>Renewal: {formatSats(entry.price!.renewalPerYear)}/yr</span>
+                              </div>
+                            </div>
+
+                            <div className="flex justify-end">
+                              <Link
+                                to={`/register/${entry.name}?years=1`}
+                                className="px-8 py-3 rounded-full primary-gradient text-[#2b1700] font-bold text-sm hover:shadow-lg hover:shadow-primary/20 transition-all active:scale-95"
+                              >
+                                Buy at Current Price
+                              </Link>
+                            </div>
+                          </div>
+                        )
+                      })}
+
+                    {auctions.filter((e) => e.price && e.price.auctionPriceSats > 0n).length === 0 && (
+                      <div className="text-center py-16">
+                        <span className="material-symbols-outlined text-5xl text-outline mb-4">trending_flat</span>
+                        <p className="text-on-surface-variant">No domains currently declining. All at base price.</p>
+                      </div>
+                    )}
+                  </div>
+                </section>
               </>
-            ) : (
-              /* ── DECLINING NOW VIEW ── */
-              <section>
-                <div className="mb-8">
-                  <h2 className="text-3xl font-bold font-headline tracking-tight mb-2">Declining Now</h2>
-                  <p className="text-slate-400 text-sm">Premium domains with active price decay — sorted by highest premium above base price.</p>
-                </div>
-
-                <div className="space-y-4">
-                  {auctions
-                    .filter((e) => e.price && e.price.auctionPriceSats > 0n)
-                    .sort((a, b) => {
-                      const ap = a.price?.auctionPriceSats ?? 0n
-                      const bp = b.price?.auctionPriceSats ?? 0n
-                      return bp > ap ? 1 : bp < ap ? -1 : 0
-                    })
-                    .map((entry) => {
-                      const premium = entry.price!.auctionPriceSats
-                      const total = entry.price!.totalPriceSats
-                      const base = basePrice ?? 1n
-                      const premiumPct = base > 0n ? Number((premium * 100n) / base) : 0
-                      return (
-                        <div key={entry.name} className="bg-surface-container-low rounded-xl p-6 hover:bg-surface-container transition-all border border-transparent hover:border-white/5">
-                          <div className="flex items-center justify-between mb-4">
-                            <div className="flex items-center gap-4">
-                              <div className="w-12 h-12 rounded-xl bg-surface-container-high flex items-center justify-center text-primary font-mono font-bold text-lg">
-                                {entry.name[0]}.
-                              </div>
-                              <div>
-                                <h3 className="text-2xl font-extrabold font-headline">
-                                  {entry.name}<span className="text-primary font-mono">.btc</span>
-                                </h3>
-                                <p className="text-[10px] font-mono text-slate-500 uppercase">
-                                  {premiumPct}% above base price
-                                </p>
-                              </div>
-                            </div>
-                            <div className="text-right">
-                              <p className="text-2xl font-mono font-bold text-tertiary">{formatSats(total)}</p>
-                              <p className="text-[10px] font-mono text-slate-500 uppercase">Current Price</p>
-                            </div>
-                          </div>
-
-                          {/* Premium decay bar */}
-                          <div className="mb-4">
-                            <div className="flex justify-between text-[10px] font-mono text-slate-500 mb-1">
-                              <span>Base: {basePrice ? formatSats(basePrice) : '...'}</span>
-                              <span>Premium: {formatSats(premium)}</span>
-                            </div>
-                            <div className="w-full h-2 bg-surface-container-highest rounded-full overflow-hidden">
-                              <div
-                                className="h-full bg-gradient-to-r from-primary-container to-primary rounded-full transition-all duration-500"
-                                style={{ width: `${Math.min(100, premiumPct > 0 ? Math.max(5, 100 - premiumPct / 10) : 100)}%` }}
-                              />
-                            </div>
-                            <div className="flex justify-between text-[10px] font-mono text-slate-500 mt-1">
-                              <span className="text-emerald-400">Declining every block</span>
-                              <span>Renewal: {formatSats(entry.price!.renewalPerYear)}/yr</span>
-                            </div>
-                          </div>
-
-                          <div className="flex justify-end">
-                            <Link
-                              to={`/register/${entry.name}?years=1`}
-                              className="px-8 py-3 rounded-full primary-gradient text-[#2b1700] font-bold text-sm hover:shadow-lg hover:shadow-primary/20 transition-all active:scale-95"
-                            >
-                              Buy at Current Price
-                            </Link>
-                          </div>
-                        </div>
-                      )
-                    })}
-
-                  {auctions.filter((e) => e.price && e.price.auctionPriceSats > 0n).length === 0 && (
-                    <div className="text-center py-16">
-                      <span className="material-symbols-outlined text-5xl text-outline mb-4">trending_flat</span>
-                      <p className="text-on-surface-variant">No domains currently declining. All at base price.</p>
-                    </div>
-                  )}
-                </div>
-              </section>
             )}
           </div>
 
-          {/* Right: Stats Sidebar */}
+          {/* Right: Stats Sidebar — shown in BOTH views */}
           <aside className="lg:col-span-4 space-y-8">
             <div className="bg-surface-container-low rounded-lg p-8">
               <h3 className="font-mono text-xs text-slate-500 uppercase tracking-widest mb-6">Dutch Auction Mechanics</h3>
@@ -306,7 +436,7 @@ export default function Ecosystem() {
                 </div>
                 <div className="flex justify-between items-end border-b border-white/5 pb-4">
                   <span className="text-slate-400 text-sm">Mechanism</span>
-                  <p className="text-sm font-mono text-on-surface-variant">Price ↓ per block</p>
+                  <p className="text-sm font-mono text-on-surface-variant">Price per block</p>
                 </div>
                 <div className="flex justify-between items-end">
                   <span className="text-slate-400 text-sm">Network</span>

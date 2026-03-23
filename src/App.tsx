@@ -7,6 +7,7 @@ import Registration from './pages/Registration'
 import Success from './pages/Success'
 import Dashboard from './pages/Dashboard'
 import Ecosystem from './pages/Ecosystem'
+import Manage from './pages/Manage'
 
 export default function App() {
   return (
@@ -19,6 +20,7 @@ export default function App() {
         <Route path="/success/:domain" element={<Success />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/ecosystem" element={<Ecosystem />} />
+        <Route path="/manage/:domain" element={<Manage />} />
       </Routes>
       <Footer />
     </div>

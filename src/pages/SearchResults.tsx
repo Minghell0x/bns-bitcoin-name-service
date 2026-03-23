@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { useSearchParams, Link } from 'react-router-dom'
 import { useDomainLookup } from '../hooks/useDomainLookup'
+import { renewDomainTx } from '../services/DomainService'
+import { useWallet } from '../contexts/WalletContext'
 import { formatSats, formatAddress, formatDate } from '../utils/formatting'
 import LoadingSkeleton from '../components/LoadingSkeleton'
 import ErrorState from '../components/ErrorState'
@@ -12,6 +14,31 @@ export default function SearchResults() {
   const [years, setYears] = useState(1)
 
   const { domain, price, status, loading, error, refetch } = useDomainLookup(domainName, years)
+  const { walletAddress, isConnected, connect } = useWallet()
+
+  const [renewPending, setRenewPending] = useState(false)
+  const [renewError, setRenewError] = useState<string | null>(null)
+
+  const isOwner = !!(domain && walletAddress && domain.owner === walletAddress)
+
+  async function handleRenew() {
+    if (!walletAddress) {
+      connect()
+      return
+    }
+    setRenewPending(true)
+    setRenewError(null)
+    try {
+      await renewDomainTx(domainName, years, walletAddress)
+      refetch()
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Renewal failed'
+      setRenewError(msg)
+      console.error('[BNS] Renewal failed:', err)
+    } finally {
+      setRenewPending(false)
+    }
+  }
 
   if (!domainName) {
     return (
@@ -38,6 +65,7 @@ export default function SearchResults() {
   }
 
   const isAvailable = status === 'available'
+  const canRenew = (status === 'grace-period' || status === 'expiring') && isOwner
 
   return (
     <main className="pt-32 pb-20 px-6 max-w-6xl mx-auto">
@@ -130,12 +158,34 @@ export default function SearchResults() {
               >
                 Register {domainName}.btc
               </Link>
-            ) : status === 'grace-period' || status === 'expiring' ? (
-              <button className="flex-1 py-5 px-8 rounded-full primary-gradient text-[#2b1700] font-bold text-lg text-center hover:shadow-lg hover:shadow-primary/20 transition-all active:scale-[0.98]">
-                Renew {domainName}.btc
+            ) : canRenew ? (
+              <button
+                onClick={handleRenew}
+                disabled={renewPending}
+                className="flex-1 py-5 px-8 rounded-full primary-gradient text-[#2b1700] font-bold text-lg text-center hover:shadow-lg hover:shadow-primary/20 transition-all active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                {renewPending ? (
+                  <span className="inline-flex items-center gap-2">
+                    <span className="w-5 h-5 border-2 border-[#2b1700]/30 border-t-[#2b1700] rounded-full animate-spin" />
+                    Renewing...
+                  </span>
+                ) : (
+                  `Renew ${domainName}.btc`
+                )}
               </button>
+            ) : (status === 'grace-period' || status === 'expiring') && !isOwner && isConnected ? (
+              <div className="flex-1 py-5 px-8 rounded-full bg-surface-container-highest text-outline font-bold text-lg text-center">
+                Only the owner can renew this domain
+              </div>
             ) : null}
           </div>
+
+          {/* Renewal error */}
+          {renewError && (
+            <div className="mt-4 p-4 rounded-lg bg-error/10 border border-error/20">
+              <p className="text-error text-sm font-mono">{renewError}</p>
+            </div>
+          )}
         </div>
       </section>
 

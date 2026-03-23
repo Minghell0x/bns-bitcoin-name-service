@@ -96,13 +96,23 @@ export default function Success() {
           <div className="mt-12 pt-8 border-t border-white/5 w-full flex flex-col items-center gap-4">
             <span className="text-[10px] font-mono uppercase tracking-widest text-slate-500">Broadcast your ownership</span>
             <div className="flex gap-6">
-              <a className="text-slate-400 hover:text-primary transition-colors flex items-center gap-2" href="#">
+              <a
+                className="text-slate-400 hover:text-primary transition-colors flex items-center gap-2"
+                href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(`I just registered ${domain}.btc on Bitcoin Layer 1! 🟠`)}&url=${encodeURIComponent('https://bns.btc')}`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 <span className="material-symbols-outlined text-xl">share</span>
                 <span className="text-xs font-semibold">Twitter</span>
               </a>
-              <a className="text-slate-400 hover:text-primary transition-colors flex items-center gap-2" href="#">
-                <span className="material-symbols-outlined text-xl">forum</span>
-                <span className="text-xs font-semibold">Discord</span>
+              <a
+                className="text-slate-400 hover:text-primary transition-colors flex items-center gap-2"
+                href="https://bns.btc"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <span className="material-symbols-outlined text-xl">link</span>
+                <span className="text-xs font-semibold">Share Link</span>
               </a>
             </div>
           </div>

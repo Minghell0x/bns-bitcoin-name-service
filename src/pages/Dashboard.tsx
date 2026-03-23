@@ -1,11 +1,12 @@
 import { useState, useEffect, useCallback } from 'react'
+import { useNavigate } from 'react-router-dom'
 import SearchBar from '../components/SearchBar'
 import WalletGuard from '../components/WalletGuard'
 import LoadingSkeleton from '../components/LoadingSkeleton'
 import { useWallet } from '../contexts/WalletContext'
-import { lookupDomain } from '../services/DomainService'
+import { lookupDomain, renewDomainTx, fetchDomainPrice } from '../services/DomainService'
 import { getOwnedDomainNames, addOwnedDomain } from '../utils/storage'
-import { formatAddress, formatDate, daysUntilExpiry } from '../utils/formatting'
+import { formatAddress, formatDate, formatSats, daysUntilExpiry } from '../utils/formatting'
 import type { DomainInfo } from '../types'
 
 interface EnrichedDomain {
@@ -52,11 +53,19 @@ export default function Dashboard() {
 
 function DashboardContent() {
   const { walletAddress } = useWallet()
+  const navigate = useNavigate()
   const [domains, setDomains] = useState<EnrichedDomain[]>([])
   const [loading, setLoading] = useState(true)
   const [importName, setImportName] = useState('')
   const [importError, setImportError] = useState<string | null>(null)
   const [importing, setImporting] = useState(false)
+
+  // Inline renewal state
+  const [renewingDomain, setRenewingDomain] = useState<string | null>(null)
+  const [renewYears, setRenewYears] = useState(1)
+  const [renewPrice, setRenewPrice] = useState<string | null>(null)
+  const [renewPending, setRenewPending] = useState(false)
+  const [renewError, setRenewError] = useState<string | null>(null)
 
   const loadDomains = useCallback(async () => {
     if (!walletAddress) return
@@ -106,6 +115,45 @@ function DashboardContent() {
       setImportError('Failed to verify domain ownership')
     } finally {
       setImporting(false)
+    }
+  }
+
+  async function openRenewal(domainName: string) {
+    setRenewingDomain(domainName)
+    setRenewYears(1)
+    setRenewPrice(null)
+    setRenewError(null)
+    try {
+      const price = await fetchDomainPrice(domainName, 1)
+      setRenewPrice(formatSats(price.totalPriceSats))
+    } catch {
+      setRenewPrice(null)
+    }
+  }
+
+  async function handleRenewYearsChange(domainName: string, years: number) {
+    setRenewYears(years)
+    setRenewPrice(null)
+    try {
+      const price = await fetchDomainPrice(domainName, years)
+      setRenewPrice(formatSats(price.totalPriceSats))
+    } catch {
+      setRenewPrice(null)
+    }
+  }
+
+  async function handleRenewConfirm() {
+    if (!walletAddress || !renewingDomain) return
+    setRenewPending(true)
+    setRenewError(null)
+    try {
+      await renewDomainTx(renewingDomain, renewYears, walletAddress)
+      setRenewingDomain(null)
+      await loadDomains()
+    } catch (err) {
+      setRenewError(err instanceof Error ? err.message : 'Renewal failed')
+    } finally {
+      setRenewPending(false)
     }
   }
 
@@ -187,43 +235,107 @@ function DashboardContent() {
                 <tbody className="divide-y divide-zinc-800/20">
                   {domains.map((d) => {
                     const s = statusStyles[d.status]
+                    const isRenewing = renewingDomain === d.name
                     return (
-                      <tr key={d.name} className="group hover:bg-surface-container-low/30 transition-colors">
-                        <td className="px-8 py-8">
-                          <div className="flex items-center gap-4">
-                            <div className="w-12 h-12 rounded-xl bg-surface-container-high flex items-center justify-center text-primary font-mono font-bold text-lg">
-                              {d.name[0]}.
+                      <tr key={d.name} className="group">
+                        <td className="px-8 py-8" colSpan={4}>
+                          {/* Main row content */}
+                          <div className="flex items-center">
+                            <div className="flex items-center gap-4 flex-1 min-w-0">
+                              <div className="w-12 h-12 rounded-xl bg-surface-container-high flex items-center justify-center text-primary font-mono font-bold text-lg shrink-0">
+                                {d.name[0]}.
+                              </div>
+                              <div>
+                                <p className="text-xl font-extrabold font-headline">
+                                  {d.name}<span className="text-primary font-mono font-medium">.btc</span>
+                                </p>
+                              </div>
                             </div>
-                            <div>
-                              <p className="text-xl font-extrabold font-headline">
-                                {d.name}<span className="text-primary font-mono font-medium">.btc</span>
+                            <div className="hidden sm:block px-8 space-y-1">
+                              <p className="font-mono text-on-surface">{formatDate(d.info.expiresAt)}</p>
+                              <p className={`text-[10px] uppercase tracking-wider font-mono ${s.remainingColor}`}>
+                                {d.daysLeft} days remaining
                               </p>
                             </div>
+                            <div className="hidden sm:block px-8">
+                              <span className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border ${s.badge}`}>
+                                <span className={`w-1.5 h-1.5 rounded-full ${s.dot} mr-2 ${s.pulse ? 'animate-pulse' : ''}`} />
+                                {s.label}
+                              </span>
+                            </div>
+                            <div className="flex justify-end gap-3 shrink-0">
+                              <button
+                                onClick={() => navigate(`/manage/${d.name}`)}
+                                className="px-4 py-2 rounded-full bg-surface-container-high hover:bg-surface-bright text-xs font-bold transition-all"
+                              >
+                                Manage
+                              </button>
+                              <button
+                                onClick={() => isRenewing ? setRenewingDomain(null) : openRenewal(d.name)}
+                                className={`px-4 py-2 rounded-full text-xs font-bold transition-all ${s.action.style}`}
+                              >
+                                {isRenewing ? 'Cancel' : s.action.label}
+                              </button>
+                            </div>
                           </div>
-                        </td>
-                        <td className="px-8 py-8">
-                          <div className="space-y-1">
-                            <p className="font-mono text-on-surface">{formatDate(d.info.expiresAt)}</p>
-                            <p className={`text-[10px] uppercase tracking-wider font-mono ${s.remainingColor}`}>
-                              {d.daysLeft} days remaining
-                            </p>
-                          </div>
-                        </td>
-                        <td className="px-8 py-8">
-                          <span className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border ${s.badge}`}>
-                            <span className={`w-1.5 h-1.5 rounded-full ${s.dot} mr-2 ${s.pulse ? 'animate-pulse' : ''}`} />
-                            {s.label}
-                          </span>
-                        </td>
-                        <td className="px-8 py-8 text-right">
-                          <div className="flex justify-end gap-3">
-                            <button className="px-4 py-2 rounded-full bg-surface-container-high hover:bg-surface-bright text-xs font-bold transition-all">
-                              Manage
-                            </button>
-                            <button className={`px-4 py-2 rounded-full text-xs font-bold transition-all ${s.action.style}`}>
-                              {s.action.label}
-                            </button>
-                          </div>
+
+                          {/* Inline renewal card */}
+                          {isRenewing && (
+                            <div className="mt-6 bg-surface-container-low rounded-2xl p-6 space-y-4">
+                              <div className="flex items-center gap-3">
+                                <span className="material-symbols-outlined text-primary text-lg">autorenew</span>
+                                <p className="text-sm font-bold font-headline">
+                                  Renew {d.name}<span className="text-primary">.btc</span>
+                                </p>
+                              </div>
+                              <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-end">
+                                {/* Year selector */}
+                                <div className="space-y-2">
+                                  <label className="text-[10px] font-mono uppercase tracking-[0.2em] text-zinc-500">Duration</label>
+                                  <div className="flex gap-1.5">
+                                    {[1, 2, 3, 4, 5].map((y) => (
+                                      <button
+                                        key={y}
+                                        onClick={() => handleRenewYearsChange(d.name, y)}
+                                        className={`w-10 h-10 rounded-lg font-mono font-bold text-xs transition-all ${
+                                          renewYears === y
+                                            ? 'primary-gradient text-[#2b1700] shadow-lg shadow-primary/20'
+                                            : 'bg-surface-container-high hover:bg-surface-bright text-on-surface'
+                                        }`}
+                                      >
+                                        {y}y
+                                      </button>
+                                    ))}
+                                  </div>
+                                </div>
+                                {/* Price */}
+                                <div className="space-y-2 flex-1">
+                                  <label className="text-[10px] font-mono uppercase tracking-[0.2em] text-zinc-500">Cost</label>
+                                  <div className="bg-surface-container-highest rounded-lg px-4 py-2.5 font-mono text-sm text-on-surface">
+                                    {renewPrice ?? <span className="text-outline animate-pulse">Fetching...</span>}
+                                  </div>
+                                </div>
+                                {/* Confirm */}
+                                <button
+                                  onClick={handleRenewConfirm}
+                                  disabled={renewPending || !renewPrice}
+                                  className="px-6 py-2.5 rounded-full primary-gradient text-[#2b1700] font-bold text-xs whitespace-nowrap disabled:opacity-50 hover:shadow-xl hover:shadow-primary/20 transition-all active:scale-95"
+                                >
+                                  {renewPending ? (
+                                    <span className="flex items-center gap-2">
+                                      <span className="w-3.5 h-3.5 border-2 border-[#2b1700]/30 border-t-[#2b1700] rounded-full animate-spin" />
+                                      Renewing...
+                                    </span>
+                                  ) : (
+                                    'Confirm Renewal'
+                                  )}
+                                </button>
+                              </div>
+                              {renewError && (
+                                <p className="text-error text-xs">{renewError}</p>
+                              )}
+                            </div>
+                          )}
                         </td>
                       </tr>
                     )

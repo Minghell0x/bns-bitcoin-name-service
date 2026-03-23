@@ -70,10 +70,15 @@ export default function Landing() {
                     robust network in history.
                   </p>
                 </div>
-                <div className="mt-8 flex items-center gap-2 text-primary font-headline font-bold text-sm">
+                <button
+                  onClick={() =>
+                    document.getElementById('infrastructure')?.scrollIntoView({ behavior: 'smooth' })
+                  }
+                  className="mt-8 flex items-center gap-2 text-primary font-headline font-bold text-sm cursor-pointer bg-transparent border-none p-0"
+                >
                   View Identity Specs{' '}
                   <span className="material-symbols-outlined text-sm">arrow_forward</span>
-                </div>
+                </button>
               </div>
               <div className="md:w-1/2 relative bg-surface-container-highest overflow-hidden">
                 <img
@@ -104,7 +109,7 @@ export default function Landing() {
           </div>
 
           {/* Infrastructure Card */}
-          <div className="md:col-span-12 bg-surface-container-low rounded-lg overflow-hidden group">
+          <div id="infrastructure" className="md:col-span-12 bg-surface-container-low rounded-lg overflow-hidden group">
             <div className="flex flex-col md:flex-row-reverse items-stretch">
               <div className="p-12 md:w-1/2 flex flex-col justify-center">
                 <span className="font-mono text-[10px] text-primary uppercase tracking-widest mb-4 block">
@@ -118,12 +123,22 @@ export default function Landing() {
                   global, uncensorable settlement layer for the next internet.
                 </p>
                 <div className="flex gap-4">
-                  <button className="bg-secondary-container text-on-secondary-container px-8 py-3 rounded-full font-headline font-bold transition-transform active:scale-95">
+                  <a
+                    href="#"
+                    title="Coming Soon"
+                    onClick={(e) => e.preventDefault()}
+                    className="bg-secondary-container text-on-secondary-container px-8 py-3 rounded-full font-headline font-bold transition-transform active:scale-95 opacity-60 cursor-default"
+                  >
                     Read Whitepaper
-                  </button>
-                  <button className="text-on-surface px-8 py-3 rounded-full font-headline font-bold border border-outline-variant/30 hover:bg-white/5 transition-colors">
+                  </a>
+                  <a
+                    href="#"
+                    title="Coming Soon"
+                    onClick={(e) => e.preventDefault()}
+                    className="text-on-surface px-8 py-3 rounded-full font-headline font-bold border border-outline-variant/30 opacity-60 cursor-default"
+                  >
                     Developer API
-                  </button>
+                  </a>
                 </div>
               </div>
               <div className="md:w-1/2 h-80 md:h-auto relative">
