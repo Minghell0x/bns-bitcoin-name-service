@@ -75,7 +75,7 @@ function buildTxParams(refundTo: string, maxSats: bigint): TransactionParameters
     refundTo,
     maximumAllowedSatToSpend: maxSats,
     network: networks.opnetTestnet,
-    feeRate: 100,
+    feeRate: 2,
     dontUseCSVUtxos: false, // Use CSV UTXOs (user's balance is in CSV)
   }
 }
