@@ -14,7 +14,7 @@ export default function SearchResults() {
   const [years, setYears] = useState(1)
 
   const { domain, price, status, loading, error, refetch } = useDomainLookup(domainName, years)
-  const { walletAddress, isConnected, connect, provider: walletProvider } = useWallet()
+  const { walletAddress, isConnected, connect, provider: walletProvider, address } = useWallet()
 
   const [renewPending, setRenewPending] = useState(false)
   const [renewError, setRenewError] = useState<string | null>(null)
@@ -29,7 +29,7 @@ export default function SearchResults() {
     setRenewPending(true)
     setRenewError(null)
     try {
-      await renewDomainTx(domainName, years, walletAddress, walletProvider)
+      await renewDomainTx(domainName, years, walletAddress, walletProvider, address)
       refetch()
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Renewal failed'

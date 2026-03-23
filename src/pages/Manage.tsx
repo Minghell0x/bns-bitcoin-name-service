@@ -114,7 +114,7 @@ function ManageContent() {
     setRenewError(null)
     setRenewSuccess(null)
     try {
-      const { txHash } = await renewDomainTx(domainName, renewYears, walletAddress, walletProvider)
+      const { txHash } = await renewDomainTx(domainName, renewYears, walletAddress, walletProvider, address)
       setRenewSuccess(txHash)
       await loadDomain()
     } catch (err) {
@@ -131,7 +131,7 @@ function ManageContent() {
     setTransferSuccess(null)
     try {
       const newOwner = transferAddress.trim() as unknown as Address
-      const { txHash } = await transferDomainTx(domainName, newOwner, walletAddress, walletProvider)
+      const { txHash } = await transferDomainTx(domainName, newOwner, walletAddress, walletProvider, address)
       setTransferSuccess(txHash)
       setTransferAddress('')
       await loadDomain()

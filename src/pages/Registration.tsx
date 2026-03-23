@@ -28,7 +28,7 @@ export default function Registration() {
   const [searchParams] = useSearchParams()
   const years = Number(searchParams.get('years') || '1')
   const navigate = useNavigate()
-  const { walletAddress, provider: walletProvider } = useWallet()
+  const { walletAddress, provider: walletProvider, address } = useWallet()
 
   const [currentStep, setCurrentStep] = useState(1)
   const [price, setPrice] = useState<DomainPrice | null>(null)
@@ -66,7 +66,7 @@ export default function Registration() {
     setTxPending(true)
     setError(null)
     try {
-      const result = await reserveDomainTx(domain, years, walletAddress, walletProvider)
+      const result = await reserveDomainTx(domain, years, walletAddress, walletProvider, address)
       setTxHash(result.txHash)
       setCurrentStep(2)
     } catch (err) {
@@ -81,7 +81,7 @@ export default function Registration() {
     setTxPending(true)
     setError(null)
     try {
-      const result = await completeRegistrationTx(domain, walletAddress, walletProvider)
+      const result = await completeRegistrationTx(domain, walletAddress, walletProvider, address)
       addOwnedDomain(walletAddress, domain)
       navigate(`/success/${domain}`, { state: { txHash: result.txHash } })
     } catch (err) {

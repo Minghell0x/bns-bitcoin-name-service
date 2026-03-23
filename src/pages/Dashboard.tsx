@@ -52,7 +52,7 @@ export default function Dashboard() {
 }
 
 function DashboardContent() {
-  const { walletAddress, provider: walletProvider } = useWallet()
+  const { walletAddress, provider: walletProvider, address } = useWallet()
   const navigate = useNavigate()
   const [domains, setDomains] = useState<EnrichedDomain[]>([])
   const [loading, setLoading] = useState(true)
@@ -147,7 +147,7 @@ function DashboardContent() {
     setRenewPending(true)
     setRenewError(null)
     try {
-      await renewDomainTx(renewingDomain, renewYears, walletAddress, walletProvider)
+      await renewDomainTx(renewingDomain, renewYears, walletAddress, walletProvider, address)
       setRenewingDomain(null)
       await loadDomains()
     } catch (err) {

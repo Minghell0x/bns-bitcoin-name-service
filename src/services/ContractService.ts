@@ -1,5 +1,6 @@
 import { getContract, type AbstractRpcProvider } from 'opnet'
 import { networks } from '@btc-vision/bitcoin'
+import type { Address } from '@btc-vision/transaction'
 import { BtcNameResolverAbi } from '../../abi/BtcNameResolver.abi'
 import type { IBtcNameResolver } from '../../abi/BtcNameResolver'
 import { getProvider } from './ProviderService'
@@ -22,14 +23,15 @@ export async function getNameResolverContract(): Promise<IBtcNameResolver> {
   return readContractInstance
 }
 
-/** Contract instance for write calls — uses wallet's provider for proper UTXO access */
-export function getWriteContract(walletProvider: AbstractRpcProvider): IBtcNameResolver {
+/** Contract instance for write calls — uses wallet's provider + sender for CSV UTXO access */
+export function getWriteContract(walletProvider: AbstractRpcProvider, sender: Address): IBtcNameResolver {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return getContract<IBtcNameResolver>(
     CONTRACT_ADDRESS,
     BtcNameResolverAbi as any,
     walletProvider,
     networks.opnetTestnet,
+    sender, // CRITICAL: needed for CSV address derivation
   )
 }
 
