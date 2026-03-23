@@ -9,7 +9,7 @@ export default function Landing() {
         {/* Background Visual: Geometric 3D Shard */}
         <div className="absolute inset-0 z-0 opacity-20 pointer-events-none flex items-center justify-center">
           <img
-            className="w-full min-w-[120%] max-w-none object-cover mix-blend-lighten"
+            className="w-full min-w-[150%] max-w-none object-cover mix-blend-lighten"
             src="/bns_bg.png"
             alt="Abstract dark geometric 3D glass shards"
           />
