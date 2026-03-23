@@ -16,8 +16,16 @@ export function formatSatsAsBtc(sats: bigint): string {
   return btc.toFixed(8)
 }
 
-export function formatDate(timestamp: bigint): string {
-  const date = new Date(Number(timestamp) * 1000)
+// OPNet contract stores timestamps as block heights, not unix timestamps.
+// Signet produces ~1 block per 10 minutes (144 blocks/day).
+const BLOCKS_PER_DAY = 144
+
+export function formatDate(blockHeight: bigint): string {
+  // Estimate real date from block height
+  // We estimate based on current block being "now" and project forward/backward
+  const blocksFromNow = Number(blockHeight) - estimateCurrentBlock()
+  const daysFromNow = blocksFromNow / BLOCKS_PER_DAY
+  const date = new Date(Date.now() + daysFromNow * 86400 * 1000)
   return date.toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'long',
@@ -25,10 +33,32 @@ export function formatDate(timestamp: bigint): string {
   })
 }
 
-export function daysUntilExpiry(expiresAt: bigint): number {
-  const now = Math.floor(Date.now() / 1000)
-  const diff = Number(expiresAt) - now
-  return Math.max(0, Math.floor(diff / 86400))
+export function daysUntilExpiry(expiresAtBlock: bigint): number {
+  const currentBlock = estimateCurrentBlock()
+  const blocksRemaining = Number(expiresAtBlock) - currentBlock
+  return Math.max(0, Math.floor(blocksRemaining / BLOCKS_PER_DAY))
+}
+
+// Rough estimate of current signet block height
+// Signet started ~2023, produces ~144 blocks/day
+// This is approximate — for exact value we'd query the provider
+let cachedBlockHeight: number | null = null
+let cachedBlockTime = 0
+
+export function setCurrentBlockHeight(height: number): void {
+  cachedBlockHeight = height
+  cachedBlockTime = Date.now()
+}
+
+function estimateCurrentBlock(): number {
+  if (cachedBlockHeight && Date.now() - cachedBlockTime < 600_000) {
+    // Use cached + elapsed time estimate
+    const elapsed = (Date.now() - cachedBlockTime) / 1000
+    return cachedBlockHeight + Math.floor(elapsed / 600) // ~1 block per 10 min
+  }
+  // Fallback: rough estimate based on OPNet testnet
+  // Adjust this as needed
+  return 11100
 }
 
 /**

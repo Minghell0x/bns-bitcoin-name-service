@@ -17,9 +17,16 @@ export function ContractProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     async function init() {
       try {
-        // Import dynamically to avoid issues if provider fails
         const { getNameResolverContract } = await import('../services/ContractService')
+        const { getProvider } = await import('../services/ProviderService')
+        const { setCurrentBlockHeight } = await import('../utils/formatting')
         await getNameResolverContract()
+        // Fetch current block height for date estimation
+        try {
+          const provider = getProvider()
+          const height = await provider.getBlockNumber()
+          setCurrentBlockHeight(Number(height))
+        } catch { /* non-critical */ }
         setIsReady(true)
       } catch (err) {
         const msg = err instanceof Error ? err.message : 'Failed to connect to OPNet'

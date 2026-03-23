@@ -2,6 +2,7 @@ import { networks, type Satoshi } from '@btc-vision/bitcoin'
 import type { Address } from '@btc-vision/transaction'
 import { TransactionOutputFlags, type AbstractRpcProvider, type TransactionParameters } from 'opnet'
 import { getNameResolverContract, getWriteContract } from './ContractService'
+import { daysUntilExpiry } from '../utils/formatting'
 import type { DomainInfo, DomainPrice, DomainStatus, Reservation } from '../types'
 
 // ─── READ METHODS (no wallet needed) ────────────────────────────
@@ -17,8 +18,6 @@ export async function lookupDomain(name: string): Promise<{
   const ownerHex = ownerAddr?.toHex() ?? ''
   let ownerP2tr = ''
   try { if (ownerAddr) ownerP2tr = ownerAddr.p2tr(networks.opnetTestnet) } catch { /* */ }
-
-  console.log('[BNS] Raw domain data:', name, 'createdAt:', result.properties.createdAt?.toString(), 'expiresAt:', result.properties.expiresAt?.toString())
 
   const domain: DomainInfo = {
     exists: result.properties.exists,
@@ -220,8 +219,6 @@ function computeStatus(domain: DomainInfo): DomainStatus {
   if (!domain.exists) return 'available'
   if (domain.inGracePeriod) return 'grace-period'
   if (!domain.isActive) return 'available'
-  const now = BigInt(Math.floor(Date.now() / 1000))
-  const thirtyDays = 30n * 24n * 60n * 60n
-  if (domain.expiresAt - now < thirtyDays) return 'expiring'
+  if (daysUntilExpiry(domain.expiresAt) < 30) return 'expiring'
   return 'taken'
 }
