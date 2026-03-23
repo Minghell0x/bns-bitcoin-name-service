@@ -9,6 +9,7 @@ export interface WalletState {
   address: Address | null
   walletAddress: string | null
   publicKey: string | null
+  hashedMLDSAKey: string | null
   isConnected: boolean
   displayAddress: string
   connect: () => void
@@ -22,6 +23,7 @@ const WalletContext = createContext<WalletState>({
   address: null,
   walletAddress: null,
   publicKey: null,
+  hashedMLDSAKey: null,
   isConnected: false,
   displayAddress: '',
   connect: () => {},
@@ -40,6 +42,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       address: wc.address,
       walletAddress: wc.walletAddress,
       publicKey: wc.publicKey,
+      hashedMLDSAKey: wc.hashedMLDSAKey,
       isConnected,
       displayAddress: wc.walletAddress ? formatAddress(wc.walletAddress) : '',
       connect: () => wc.openConnectModal(),

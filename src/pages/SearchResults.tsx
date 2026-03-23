@@ -14,15 +14,14 @@ export default function SearchResults() {
   const [years, setYears] = useState(1)
 
   const { domain, price, status, loading, error, refetch } = useDomainLookup(domainName, years)
-  const { walletAddress, isConnected, connect, provider: walletProvider, address } = useWallet()
+  const { walletAddress, isConnected, connect, provider: walletProvider, address, hashedMLDSAKey } = useWallet()
 
   const [renewPending, setRenewPending] = useState(false)
   const [renewError, setRenewError] = useState<string | null>(null)
 
-  const isOwnerCheck = !!(domain && walletAddress && (
-    (domain.ownerHex && address?.toHex() && domain.ownerHex.toLowerCase() === address.toHex().toLowerCase()) ||
-    domain.owner.toLowerCase() === walletAddress.toLowerCase() ||
-    (domain.ownerP2tr && domain.ownerP2tr.toLowerCase() === walletAddress.toLowerCase())
+  const isOwnerCheck = !!(domain && (
+    (domain.ownerHex && hashedMLDSAKey && domain.ownerHex.toLowerCase() === ('0x' + hashedMLDSAKey).toLowerCase()) ||
+    (walletAddress && domain.owner.toLowerCase() === walletAddress.toLowerCase())
   ))
 
   async function handleRenew() {

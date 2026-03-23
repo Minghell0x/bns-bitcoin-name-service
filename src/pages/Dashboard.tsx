@@ -52,7 +52,7 @@ export default function Dashboard() {
 }
 
 function DashboardContent() {
-  const { walletAddress, provider: walletProvider, address } = useWallet()
+  const { walletAddress, provider: walletProvider, address, hashedMLDSAKey } = useWallet()
   const navigate = useNavigate()
   const [domains, setDomains] = useState<EnrichedDomain[]>([])
   const [loading, setLoading] = useState(true)
@@ -72,14 +72,14 @@ function DashboardContent() {
     setLoading(true)
     const names = getOwnedDomainNames(walletAddress)
     console.log('[BNS Dashboard] Loading domains for', walletAddress, 'found in storage:', names)
-    console.log('[BNS Dashboard] Wallet address hex:', address?.toHex())
+    console.log('[BNS Dashboard] Wallet address hex:', hashedMLDSAKey)
     const results: EnrichedDomain[] = []
 
     for (const name of names) {
       try {
         const { domain: info } = await lookupDomain(name)
         console.log('[BNS Dashboard] Domain', name, '→ exists:', info.exists, 'ownerHex:', info.ownerHex, 'ownerP2tr:', info.ownerP2tr, 'owner:', info.owner)
-        const ownerMatch = isOwner(info.owner, info.ownerHex, info.ownerP2tr, walletAddress, address?.toHex())
+        const ownerMatch = isOwner(info.owner, info.ownerHex, info.ownerP2tr, walletAddress, hashedMLDSAKey)
         console.log('[BNS Dashboard] Owner match:', ownerMatch)
         if (info.exists && ownerMatch) {
           const days = daysUntilExpiry(info.expiresAt)
@@ -109,7 +109,7 @@ function DashboardContent() {
       const { domain: info } = await lookupDomain(cleaned)
       if (!info.exists) {
         setImportError('Domain not found')
-      } else if (!isOwner(info.owner, info.ownerHex, info.ownerP2tr, walletAddress, address?.toHex())) {
+      } else if (!isOwner(info.owner, info.ownerHex, info.ownerP2tr, walletAddress, hashedMLDSAKey)) {
         setImportError('You are not the owner of this domain')
       } else {
         addOwnedDomain(walletAddress, cleaned)

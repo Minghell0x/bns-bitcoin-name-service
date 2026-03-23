@@ -33,26 +33,25 @@ export function daysUntilExpiry(expiresAt: bigint): number {
 
 /**
  * Compare domain owner against connected wallet.
- * Checks: ownerHex vs addressHex (ML-DSA hash comparison),
- * ownerP2tr vs walletAddress (Bitcoin address comparison),
- * and generic string match as fallback.
+ * Primary: ownerHex (0x-prefixed) vs hashedMLDSAKey (no prefix) from walletconnect.
+ * Fallback: generic string match against walletAddress.
  */
 export function isOwner(
   domainOwner: string,
   domainOwnerHex: string,
-  domainOwnerP2tr: string,
+  _domainOwnerP2tr: string,
   walletAddress: string | null,
-  walletAddressHex?: string | null,
+  hashedMLDSAKey?: string | null,
 ): boolean {
-  if (!walletAddress) return false
-  const w = walletAddress.toLowerCase()
-  // Primary: compare ML-DSA hashes (most reliable)
-  if (walletAddressHex && domainOwnerHex) {
-    if (domainOwnerHex.toLowerCase() === walletAddressHex.toLowerCase()) return true
+  // Primary: compare ML-DSA hashes (contract stores 0x-prefixed, wallet gives raw hex)
+  if (hashedMLDSAKey && domainOwnerHex) {
+    const contractHash = domainOwnerHex.toLowerCase().replace(/^0x/, '')
+    const walletHash = hashedMLDSAKey.toLowerCase().replace(/^0x/, '')
+    if (contractHash === walletHash) return true
   }
-  // Secondary: compare p2tr addresses
-  if (domainOwnerP2tr && domainOwnerP2tr.toLowerCase() === w) return true
-  // Fallback: generic string match
-  if (domainOwner && domainOwner.toLowerCase() === w) return true
+  // Fallback: direct string match
+  if (walletAddress && domainOwner) {
+    if (domainOwner.toLowerCase() === walletAddress.toLowerCase()) return true
+  }
   return false
 }
