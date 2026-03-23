@@ -1,6 +1,6 @@
-import { networks } from '@btc-vision/bitcoin'
+import { networks, type Satoshi } from '@btc-vision/bitcoin'
 import type { Address } from '@btc-vision/transaction'
-import type { TransactionParameters } from 'opnet'
+import { TransactionOutputFlags, type TransactionParameters } from 'opnet'
 import { getNameResolverContract } from './ContractService'
 import type { DomainInfo, DomainPrice, DomainStatus, Reservation } from '../types'
 
@@ -85,12 +85,42 @@ export async function reserveDomainTx(
   refundAddress: string,
 ): Promise<{ txHash: string }> {
   const contract = await getNameResolverContract()
-  // Fetch the price to send with the reservation
-  const priceResult = await contract.getDomainPrice(name, BigInt(years))
+
+  // 1. Fetch price and treasury address
+  const [priceResult, treasuryResult] = await Promise.all([
+    contract.getDomainPrice(name, BigInt(years)),
+    contract.getTreasuryAddress(),
+  ])
   const totalPrice = priceResult.properties.totalPriceSats
+  const treasuryAddress = treasuryResult.properties.treasuryAddress
+
+  // 2. setTransactionDetails BEFORE simulate — tells contract about the BTC output
+  contract.setTransactionDetails({
+    inputs: [],
+    outputs: [
+      {
+        to: treasuryAddress,
+        value: totalPrice as Satoshi,
+        index: 1, // index 0 is RESERVED
+        flags: TransactionOutputFlags.hasTo,
+      },
+    ],
+  })
+
+  // 3. Simulate
   const callResult = await contract.reserveDomain(name, BigInt(years))
-  const params = buildTxParams(refundAddress, totalPrice + 50_000n) // price + buffer for fees
-  const receipt = await callResult.sendTransaction(params, totalPrice)
+
+  // 4. Send with matching extraOutputs
+  const params = buildTxParams(refundAddress, totalPrice + 100_000n)
+  const receipt = await callResult.sendTransaction({
+    ...params,
+    extraOutputs: [
+      {
+        address: treasuryAddress,
+        value: totalPrice as Satoshi,
+      },
+    ],
+  })
   return { txHash: receipt.transactionId }
 }
 
@@ -100,7 +130,7 @@ export async function completeRegistrationTx(
 ): Promise<{ txHash: string }> {
   const contract = await getNameResolverContract()
   const callResult = await contract.completeRegistration(name)
-  const params = buildTxParams(refundAddress, 500_000n) // just gas, no payment needed
+  const params = buildTxParams(refundAddress, 500_000n)
   const receipt = await callResult.sendTransaction(params)
   return { txHash: receipt.transactionId }
 }
@@ -111,12 +141,42 @@ export async function renewDomainTx(
   refundAddress: string,
 ): Promise<{ txHash: string }> {
   const contract = await getNameResolverContract()
-  // Fetch renewal price
-  const priceResult = await contract.getDomainPrice(name, BigInt(years))
+
+  // 1. Fetch price and treasury
+  const [priceResult, treasuryResult] = await Promise.all([
+    contract.getDomainPrice(name, BigInt(years)),
+    contract.getTreasuryAddress(),
+  ])
   const renewalCost = priceResult.properties.renewalPerYear * BigInt(years)
+  const treasuryAddress = treasuryResult.properties.treasuryAddress
+
+  // 2. setTransactionDetails BEFORE simulate
+  contract.setTransactionDetails({
+    inputs: [],
+    outputs: [
+      {
+        to: treasuryAddress,
+        value: renewalCost as Satoshi,
+        index: 1,
+        flags: TransactionOutputFlags.hasTo,
+      },
+    ],
+  })
+
+  // 3. Simulate
   const callResult = await contract.renewDomain(name, BigInt(years))
-  const params = buildTxParams(refundAddress, renewalCost + 50_000n)
-  const receipt = await callResult.sendTransaction(params, renewalCost)
+
+  // 4. Send with matching extraOutputs
+  const params = buildTxParams(refundAddress, renewalCost + 100_000n)
+  const receipt = await callResult.sendTransaction({
+    ...params,
+    extraOutputs: [
+      {
+        address: treasuryAddress,
+        value: renewalCost as Satoshi,
+      },
+    ],
+  })
   return { txHash: receipt.transactionId }
 }
 
