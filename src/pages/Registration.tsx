@@ -86,7 +86,7 @@ export default function Registration() {
     setTxPending(true)
     setError(null)
     try {
-      const result = await completeRegistrationTx(domain, walletAddress, walletProvider, address)
+      const result = await completeRegistrationTx(domain, years, walletAddress, walletProvider, address)
       addOwnedDomain(walletAddress, domain)
       setCurrentStep(3)
       navigate(`/success/${domain}`, { state: { txHash: result.txHash } })

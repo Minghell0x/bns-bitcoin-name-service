@@ -89,7 +89,23 @@ export async function reserveDomainTx(
 ): Promise<{ txHash: string }> {
   const contract = walletProvider ? getWriteContract(walletProvider, senderAddress!) : await getNameResolverContract()
 
-  // 1. Fetch price and treasury address
+  // reserveDomain just locks the name — no payment needed here
+  const callResult = await contract.reserveDomain(name, BigInt(years))
+  const params = buildTxParams(refundAddress, 500_000n)
+  const receipt = await callResult.sendTransaction(params)
+  return { txHash: receipt.transactionId }
+}
+
+export async function completeRegistrationTx(
+  name: string,
+  years: number,
+  refundAddress: string,
+  walletProvider?: AbstractRpcProvider | null,
+  senderAddress?: Address | null,
+): Promise<{ txHash: string }> {
+  const contract = walletProvider ? getWriteContract(walletProvider, senderAddress!) : await getNameResolverContract()
+
+  // 1. Fetch price and treasury — completeRegistration is the payable function
   const [priceResult, treasuryResult] = await Promise.all([
     contract.getDomainPrice(name, BigInt(years)),
     contract.getTreasuryAddress(),
@@ -97,13 +113,13 @@ export async function reserveDomainTx(
   const totalPrice = priceResult.properties.totalPriceSats
   const treasuryAddress = treasuryResult.properties.treasuryAddress
 
-  // 2. setTransactionDetails BEFORE simulate — tells contract about the BTC output
+  // 2. setTransactionDetails BEFORE simulate — contract verifies BTC output
   contract.setTransactionDetails({
     inputs: [],
     outputs: [
       {
         to: treasuryAddress,
-        value: totalPrice as Satoshi,
+        value: totalPrice,
         index: 1, // index 0 is RESERVED
         flags: TransactionOutputFlags.hasTo,
       },
@@ -111,9 +127,9 @@ export async function reserveDomainTx(
   })
 
   // 3. Simulate
-  const callResult = await contract.reserveDomain(name, BigInt(years))
+  const callResult = await contract.completeRegistration(name)
 
-  // 4. Send with matching extraOutputs
+  // 4. Send with matching extraOutputs — BTC goes to treasury
   const params = buildTxParams(refundAddress, totalPrice + 100_000n)
   const receipt = await callResult.sendTransaction({
     ...params,
@@ -124,19 +140,6 @@ export async function reserveDomainTx(
       },
     ],
   })
-  return { txHash: receipt.transactionId }
-}
-
-export async function completeRegistrationTx(
-  name: string,
-  refundAddress: string,
-  walletProvider?: AbstractRpcProvider | null,
-  senderAddress?: Address | null,
-): Promise<{ txHash: string }> {
-  const contract = walletProvider ? getWriteContract(walletProvider, senderAddress!) : await getNameResolverContract()
-  const callResult = await contract.completeRegistration(name)
-  const params = buildTxParams(refundAddress, 500_000n)
-  const receipt = await callResult.sendTransaction(params)
   return { txHash: receipt.transactionId }
 }
 
