@@ -1,4 +1,5 @@
 export const CONTRACT_ADDRESS = '0x9fbe00d8bcdf4fe5387c4e11324b8254b8eb7b3879130213ac0ed854f3f5ee23'
+export const CONTRACT_P2OP = 'opt1sqzwf2c80xr78g8qatrlh6ucpu5c5vr0y3g0xxjx7'
 
 export const RPC_URL = 'https://testnet.opnet.org'
 

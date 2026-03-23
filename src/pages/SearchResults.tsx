@@ -1,8 +1,9 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useSearchParams, Link } from 'react-router-dom'
 import { useDomainLookup } from '../hooks/useDomainLookup'
-import { renewDomainTx } from '../services/DomainService'
+import { renewDomainTx, fetchReservation } from '../services/DomainService'
 import { useWallet } from '../contexts/WalletContext'
+import type { Reservation } from '../types'
 import { formatSats, formatAddress, formatDate } from '../utils/formatting'
 import LoadingSkeleton from '../components/LoadingSkeleton'
 import ErrorState from '../components/ErrorState'
@@ -18,6 +19,22 @@ export default function SearchResults() {
 
   const [renewPending, setRenewPending] = useState(false)
   const [renewError, setRenewError] = useState<string | null>(null)
+  const [reservation, setReservation] = useState<Reservation | null>(null)
+
+  // Check reservation status for available domains
+  useEffect(() => {
+    if (status === 'available' && domainName) {
+      fetchReservation(domainName)
+        .then((r) => { if (r.isActive) setReservation(r) })
+        .catch(() => {})
+    } else {
+      setReservation(null)
+    }
+  }, [status, domainName])
+
+  const isReservedByMe = reservation?.isActive && walletAddress &&
+    reservation.reserver.toLowerCase() === walletAddress.toLowerCase()
+  const isReservedByOther = reservation?.isActive && !isReservedByMe
 
   const isOwnerCheck = !!(domain && (
     (domain.ownerHex && addressHex && domain.ownerHex.toLowerCase() === addressHex.toLowerCase()) ||
@@ -152,14 +169,32 @@ export default function SearchResults() {
             </div>
           )}
 
+          {/* Reservation warning */}
+          {isReservedByOther && (
+            <div className="flex items-center gap-3 p-4 rounded-xl bg-primary/5 border border-primary/10 mb-4">
+              <span className="material-symbols-outlined text-primary">lock</span>
+              <p className="text-sm text-on-surface-variant">
+                This domain is currently <span className="text-primary font-bold">reserved</span> by another user. The reservation may expire if not completed.
+              </p>
+            </div>
+          )}
+          {isReservedByMe && (
+            <div className="flex items-center gap-3 p-4 rounded-xl bg-tertiary/5 border border-tertiary/10 mb-4">
+              <span className="material-symbols-outlined text-tertiary">how_to_reg</span>
+              <p className="text-sm text-on-surface-variant">
+                You have an active reservation for this domain. <Link to={`/register/${domainName}?years=${years}`} className="text-primary font-bold underline">Complete registration</Link>
+              </p>
+            </div>
+          )}
+
           {/* Actions */}
           <div className="flex flex-col sm:flex-row gap-4">
-            {isAvailable ? (
+            {isAvailable && !isReservedByOther ? (
               <Link
                 to={`/register/${domainName}?years=${years}`}
                 className="flex-1 py-5 px-8 rounded-full primary-gradient text-[#2b1700] font-bold text-lg text-center hover:shadow-lg hover:shadow-primary/20 transition-all active:scale-[0.98]"
               >
-                Register {domainName}.btc
+                {isReservedByMe ? 'Complete Registration' : `Register ${domainName}.btc`}
               </Link>
             ) : canRenew ? (
               <button

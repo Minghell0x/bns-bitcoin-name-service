@@ -1,5 +1,5 @@
 import { getProvider } from './ProviderService'
-import { CONTRACT_ADDRESS } from '../config/constants'
+import { CONTRACT_ADDRESS, CONTRACT_P2OP } from '../config/constants'
 
 export interface RecentActivity {
   type: 'registration' | 'renewal' | 'transfer' | 'reservation' | 'other'
@@ -25,8 +25,9 @@ export async function fetchRecentActivity(blocksToScan = 50): Promise<RecentActi
   const startBlock = Math.max(0, Number(currentBlock) - blocksToScan)
 
   const activities: RecentActivity[] = []
-  const contractAddr = CONTRACT_ADDRESS.toLowerCase()
-  console.log('[BNS Activity] Scanning blocks', startBlock, 'to', Number(currentBlock), 'for contract', contractAddr)
+  const contractHex = CONTRACT_ADDRESS.toLowerCase()
+  const contractP2op = CONTRACT_P2OP.toLowerCase()
+  console.log('[BNS Activity] Scanning', blocksToScan, 'blocks from', Number(currentBlock))
 
   // Fetch blocks in batches of 10
   for (let i = Number(currentBlock); i > startBlock; i -= 10) {
@@ -48,13 +49,12 @@ export async function fetchRecentActivity(blocksToScan = 50): Promise<RecentActi
           // Skip reverted txs
           if (itx.revert) continue
 
-          // Log all contract interactions for debugging
-          if (itx.contractAddress) {
-            console.log('[BNS Activity] TX', tx.hash.slice(0, 12), 'contract:', itx.contractAddress, 'match:', itx.contractAddress.toLowerCase() === contractAddr)
-          }
-
-          // Check if transaction targets our contract
-          if (itx.contractAddress?.toLowerCase() !== contractAddr) continue
+          // Check if transaction targets our contract (compare both hex and p2op formats)
+          const txContract = itx.contractAddress?.toLowerCase() ?? ''
+          const isMatch = txContract === contractHex ||
+            txContract === contractP2op.toLowerCase() ||
+            txContract.includes(contractHex.replace(/^0x/, '').slice(0, 20))
+          if (!isMatch) continue
 
           // Parse events to determine activity type
           const eventNames: string[] = []
