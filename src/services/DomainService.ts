@@ -85,9 +85,12 @@ export async function reserveDomainTx(
   refundAddress: string,
 ): Promise<{ txHash: string }> {
   const contract = await getNameResolverContract()
+  // Fetch the price to send with the reservation
+  const priceResult = await contract.getDomainPrice(name, BigInt(years))
+  const totalPrice = priceResult.properties.totalPriceSats
   const callResult = await contract.reserveDomain(name, BigInt(years))
-  const params = buildTxParams(refundAddress, 1_000_000n)
-  const receipt = await callResult.sendTransaction(params)
+  const params = buildTxParams(refundAddress, totalPrice + 50_000n) // price + buffer for fees
+  const receipt = await callResult.sendTransaction(params, totalPrice)
   return { txHash: receipt.transactionId }
 }
 
@@ -97,7 +100,7 @@ export async function completeRegistrationTx(
 ): Promise<{ txHash: string }> {
   const contract = await getNameResolverContract()
   const callResult = await contract.completeRegistration(name)
-  const params = buildTxParams(refundAddress, 1_000_000n)
+  const params = buildTxParams(refundAddress, 500_000n) // just gas, no payment needed
   const receipt = await callResult.sendTransaction(params)
   return { txHash: receipt.transactionId }
 }
@@ -108,9 +111,12 @@ export async function renewDomainTx(
   refundAddress: string,
 ): Promise<{ txHash: string }> {
   const contract = await getNameResolverContract()
+  // Fetch renewal price
+  const priceResult = await contract.getDomainPrice(name, BigInt(years))
+  const renewalCost = priceResult.properties.renewalPerYear * BigInt(years)
   const callResult = await contract.renewDomain(name, BigInt(years))
-  const params = buildTxParams(refundAddress, 10_000_000n)
-  const receipt = await callResult.sendTransaction(params)
+  const params = buildTxParams(refundAddress, renewalCost + 50_000n)
+  const receipt = await callResult.sendTransaction(params, renewalCost)
   return { txHash: receipt.transactionId }
 }
 
