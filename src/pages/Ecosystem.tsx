@@ -19,7 +19,7 @@ interface AuctionEntry {
   loading: boolean
 }
 
-type ViewFilter = 'marketplace' | 'auctions'
+type ViewFilter = 'browse' | 'auctions'
 
 export default function Ecosystem() {
   const [auctions, setAuctions] = useState<AuctionEntry[]>(
@@ -27,10 +27,10 @@ export default function Ecosystem() {
   )
   const [basePrice, setBasePrice] = useState<bigint | null>(null)
   const [featured, setFeatured] = useState<AuctionEntry | null>(null)
-  const [filter, setFilter] = useState<ViewFilter>('marketplace')
+  const [filter, setFilter] = useState<ViewFilter>('browse')
 
-  const [marketplacePrices, setMarketplacePrices] = useState<Record<string, DomainPrice | null>>({})
-  const [marketplaceLoading, setMarketplaceLoading] = useState(true)
+  const [marketplacePrices, setBrowsePrices] = useState<Record<string, DomainPrice | null>>({})
+  const [marketplaceLoading, setBrowseLoading] = useState(true)
 
   useEffect(() => {
     fetchBasePrice().then(setBasePrice).catch(() => {})
@@ -67,8 +67,8 @@ export default function Ecosystem() {
     ).then((results) => {
       const prices: Record<string, DomainPrice | null> = {}
       results.forEach((r) => { prices[r.name] = r.price })
-      setMarketplacePrices(prices)
-      setMarketplaceLoading(false)
+      setBrowsePrices(prices)
+      setBrowseLoading(false)
     })
   }, [])
 
@@ -90,15 +90,15 @@ export default function Ecosystem() {
 
         <div className="flex-1 space-y-1 font-mono text-sm">
           <button
-            onClick={() => setFilter('marketplace')}
+            onClick={() => setFilter('browse')}
             className={`w-full flex items-center gap-3 px-6 py-3 transition-colors text-left ${
-              filter === 'marketplace'
+              filter === 'browse'
                 ? 'bg-gradient-to-r from-[#e8910c]/20 to-transparent text-primary border-l-4 border-primary-container'
                 : 'text-slate-500 hover:text-slate-300 hover:bg-surface-container'
             }`}
           >
             <span className="material-symbols-outlined text-lg">storefront</span>
-            Marketplace
+            Browse
           </button>
           <button
             onClick={() => setFilter('auctions')}
@@ -126,14 +126,14 @@ export default function Ecosystem() {
       <div className="fixed top-16 left-0 right-0 z-30 bg-[#1a1c1f]/95 backdrop-blur-md border-b border-white/5 xl:hidden">
         <div className="flex">
           <button
-            onClick={() => setFilter('marketplace')}
+            onClick={() => setFilter('browse')}
             className={`flex-1 py-3 text-center text-xs font-mono font-bold transition-colors ${
-              filter === 'marketplace'
+              filter === 'browse'
                 ? 'text-primary border-b-2 border-primary'
                 : 'text-slate-500 hover:text-slate-300'
             }`}
           >
-            Marketplace
+            Browse
           </button>
           <button
             onClick={() => setFilter('auctions')}
@@ -153,7 +153,7 @@ export default function Ecosystem() {
         <div className="max-w-[1400px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-10">
           {/* Left: Primary Content */}
           <div className="lg:col-span-8 space-y-12">
-            {filter === 'marketplace' ? (
+            {filter === 'browse' ? (
               <>
                 {/* ── MARKETPLACE VIEW ── */}
 
@@ -202,10 +202,22 @@ export default function Ecosystem() {
                   </div>
                 </section>
 
-                {/* Quick Register */}
+                {/* Recent Activity */}
                 <section>
-                  <h2 className="text-2xl font-bold font-headline mb-6">Quick Register</h2>
-                  <p className="text-slate-400 text-sm mb-8">Get your .btc domain in three simple steps.</p>
+                  <div className="flex justify-between items-center mb-6">
+                    <h2 className="text-2xl font-bold font-headline">Recent Activity</h2>
+                    <span className="text-[10px] font-mono text-slate-500 uppercase tracking-widest px-3 py-1 rounded-full bg-surface-container-highest">Coming Soon</span>
+                  </div>
+                  <div className="bg-surface-container-low rounded-xl p-12 text-center border border-white/5">
+                    <span className="material-symbols-outlined text-5xl text-outline/40 mb-4">history</span>
+                    <p className="text-on-surface-variant text-sm mb-2">Recent registrations and transfers will appear here.</p>
+                    <p className="text-slate-500 text-xs font-mono">Event indexing in development — search by name for now.</p>
+                  </div>
+                </section>
+
+                {/* How It Works */}
+                <section>
+                  <h2 className="text-2xl font-bold font-headline mb-6">How It Works</h2>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     {[
                       { step: '1', icon: 'search', title: 'Search', desc: 'Enter the domain name you want and check availability.' },
