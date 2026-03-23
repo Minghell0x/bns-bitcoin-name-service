@@ -31,5 +31,11 @@
     "typescript": "^5.6.3",
     "vite": "^6.0.0",
     "vite-plugin-node-polyfills": "^0.25.0"
+  },
+  "overrides": {
+    "@btc-vision/walletconnect": {
+      "react": "$react",
+      "react-dom": "$react-dom"
+    }
   }
 }
