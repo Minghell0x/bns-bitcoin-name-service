@@ -1,13 +1,32 @@
+import { BinaryReader } from '@btc-vision/transaction'
 import { getProvider } from './ProviderService'
 import { CONTRACT_ADDRESS, CONTRACT_P2OP } from '../config/constants'
 
 export interface RecentActivity {
   type: 'registration' | 'renewal' | 'transfer' | 'reservation' | 'other'
   label: string
+  domainName: string
   txHash: string
   blockHeight: number
   timestamp: number
   events: string[]
+}
+
+/** Try to extract domain name from calldata. Most BNS functions have domainName as first string param after selector. */
+function extractDomainName(calldata?: Uint8Array): string {
+  if (!calldata || calldata.length < 8) return ''
+  try {
+    const reader = new BinaryReader(calldata)
+    reader.readSelector() // skip 4-byte selector
+    const name = reader.readStringWithLength()
+    // Sanity check — domain names are short ascii strings
+    if (name.length > 0 && name.length <= 64 && /^[a-z0-9][a-z0-9-]*$/i.test(name)) {
+      return name.toLowerCase()
+    }
+  } catch {
+    // Calldata doesn't have a string as first param
+  }
+  return ''
 }
 
 const EVENT_MAP: Record<string, { type: RecentActivity['type']; label: string }> = {
@@ -44,6 +63,7 @@ export async function fetchRecentActivity(blocksToScan = 10): Promise<RecentActi
       for (const tx of block.transactions) {
         const itx = tx as {
           contractAddress?: string
+          calldata?: Uint8Array
           events?: Record<string, Array<{ type: string; data: Uint8Array }>>
           revert?: string | Uint8Array
         }
@@ -72,9 +92,12 @@ export async function fetchRecentActivity(blocksToScan = 10): Promise<RecentActi
           }
         }
 
+        const domainName = extractDomainName(itx.calldata)
+
         activities.push({
           type: activityType,
           label,
+          domainName,
           txHash: tx.hash,
           blockHeight: Number(block.height),
           timestamp: block.time,
@@ -99,6 +122,7 @@ export async function fetchTxActivity(txHash: string): Promise<RecentActivity | 
     const tx = await provider.getTransaction(txHash)
     const itx = tx as {
       contractAddress?: string
+      calldata?: Uint8Array
       events?: Record<string, Array<{ type: string; data: Uint8Array }>>
       revert?: string | Uint8Array
       blockNumber?: bigint
@@ -106,6 +130,7 @@ export async function fetchTxActivity(txHash: string): Promise<RecentActivity | 
 
     if (itx.revert) return null
 
+    const domainName = extractDomainName(itx.calldata)
     const eventNames: string[] = []
     let activityType: RecentActivity['type'] = 'other'
     let label = 'Contract Interaction'
@@ -126,6 +151,7 @@ export async function fetchTxActivity(txHash: string): Promise<RecentActivity | 
     return {
       type: activityType,
       label,
+      domainName,
       txHash: tx.hash,
       blockHeight: Number(itx.blockNumber ?? 0),
       timestamp: Math.floor(Date.now() / 1000),

@@ -254,11 +254,15 @@ export default function Ecosystem() {
                               </span>
                             </div>
                             <div>
-                              <p className="text-sm font-semibold">{activity.label}</p>
-                              <p className="text-[10px] font-mono text-slate-500">
-                                Block {activity.blockHeight}
-                                {activity.events.length > 0 && ` • ${activity.events.join(', ')}`}
+                              <p className="text-sm font-semibold">
+                                {activity.label}
+                                {activity.domainName && (
+                                  <span className="ml-1">
+                                    — <span className="font-headline">{activity.domainName}</span><span className="text-primary font-mono">.btc</span>
+                                  </span>
+                                )}
                               </p>
+                              <p className="text-[10px] font-mono text-slate-500">Block {activity.blockHeight}</p>
                             </div>
                           </div>
                           <div className="flex items-center gap-2">
