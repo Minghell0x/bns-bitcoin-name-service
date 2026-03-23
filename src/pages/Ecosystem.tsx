@@ -262,12 +262,7 @@ export default function Ecosystem() {
                             </div>
                           </div>
                           <div className="flex items-center gap-2">
-                            <div className="text-right">
-                              <p className="text-xs font-mono text-slate-400 truncate max-w-[140px]">{activity.txHash}</p>
-                              <p className="text-[9px] text-slate-600">
-                                {new Date(activity.timestamp * 1000).toLocaleString()}
-                              </p>
-                            </div>
+                            <p className="text-xs font-mono text-slate-400 truncate max-w-[140px]">{activity.txHash.slice(0, 8)}...{activity.txHash.slice(-6)}</p>
                             <span className="material-symbols-outlined text-xs text-outline group-hover:text-primary transition-colors">open_in_new</span>
                           </div>
                         </a>
