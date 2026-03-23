@@ -71,12 +71,17 @@ function DashboardContent() {
     if (!walletAddress) return
     setLoading(true)
     const names = getOwnedDomainNames(walletAddress)
+    console.log('[BNS Dashboard] Loading domains for', walletAddress, 'found in storage:', names)
+    console.log('[BNS Dashboard] Wallet address hex:', address?.toHex())
     const results: EnrichedDomain[] = []
 
     for (const name of names) {
       try {
         const { domain: info } = await lookupDomain(name)
-        if (info.exists && isOwner(info.owner, info.ownerHex, info.ownerP2tr, walletAddress, address?.toHex())) {
+        console.log('[BNS Dashboard] Domain', name, '→ exists:', info.exists, 'ownerHex:', info.ownerHex, 'ownerP2tr:', info.ownerP2tr, 'owner:', info.owner)
+        const ownerMatch = isOwner(info.owner, info.ownerHex, info.ownerP2tr, walletAddress, address?.toHex())
+        console.log('[BNS Dashboard] Owner match:', ownerMatch)
+        if (info.exists && ownerMatch) {
           const days = daysUntilExpiry(info.expiresAt)
           let status: EnrichedDomain['status'] = 'active'
           if (info.inGracePeriod) status = 'grace-period'
