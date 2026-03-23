@@ -174,10 +174,19 @@ export default function Registration() {
 
                 {/* Transaction Hash */}
                 {reserveTxHash && (
-                  <div className="p-4 bg-surface-container-lowest rounded-xl border border-white/5">
+                  <a
+                    href={`https://mempool.opnet.org/it/testnet4/tx/${reserveTxHash}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block p-4 bg-surface-container-lowest rounded-xl border border-white/5 hover:border-primary/20 transition-colors group"
+                  >
                     <p className="text-[10px] font-mono text-outline uppercase tracking-widest mb-1">Reservation Transaction</p>
-                    <p className="text-xs font-mono text-primary break-all">{reserveTxHash}</p>
-                  </div>
+                    <div className="flex items-center gap-2">
+                      <p className="text-xs font-mono text-primary break-all flex-1">{reserveTxHash}</p>
+                      <span className="material-symbols-outlined text-sm text-outline group-hover:text-primary transition-colors">open_in_new</span>
+                    </div>
+                    <p className="text-[10px] font-mono text-outline mt-1">View on mempool.opnet.org</p>
+                  </a>
                 )}
 
                 {/* Error */}
