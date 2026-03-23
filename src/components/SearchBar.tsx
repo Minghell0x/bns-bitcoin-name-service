@@ -33,7 +33,7 @@ export default function SearchBar({ size = 'hero', initialValue = '' }: SearchBa
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          className={`bg-transparent border-none focus:ring-0 ${isHero ? 'text-lg' : 'text-base'} px-4 w-full font-headline placeholder:text-outline/50 text-on-surface`}
+          className={`bg-transparent border-none focus:ring-0 focus:outline-none outline-none ${isHero ? 'text-lg' : 'text-base'} px-4 w-full font-headline placeholder:text-outline/50 text-on-surface`}
           placeholder={isHero ? 'Search your unique .btc handle...' : 'Search for your .btc domain...'}
         />
         <button
