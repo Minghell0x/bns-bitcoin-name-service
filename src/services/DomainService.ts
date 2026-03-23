@@ -18,6 +18,8 @@ export async function lookupDomain(name: string): Promise<{
   let ownerP2tr = ''
   try { if (ownerAddr) ownerP2tr = ownerAddr.p2tr(networks.opnetTestnet) } catch { /* */ }
 
+  console.log('[BNS] Raw domain data:', name, 'createdAt:', result.properties.createdAt?.toString(), 'expiresAt:', result.properties.expiresAt?.toString())
+
   const domain: DomainInfo = {
     exists: result.properties.exists,
     owner: ownerP2tr || ownerHex,
