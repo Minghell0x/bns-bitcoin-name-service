@@ -91,10 +91,12 @@ export default function Registration() {
       setCurrentStep(3)
       navigate(`/success/${domain}`, { state: { txHash: result.txHash } })
     } catch (err) {
+      const msg = err instanceof Error ? err.message : ''
+      const isPaymentPending = msg.toLowerCase().includes('insufficient payment') || msg.toLowerCase().includes('not yet confirmed')
       setError(
-        err instanceof Error
-          ? err.message
-          : 'Registration not yet confirmed. The reservation transaction may still be pending — wait a few minutes and try again.',
+        isPaymentPending
+          ? 'Payment not yet confirmed on-chain. Signet blocks take up to 15 minutes. Please wait and try again.'
+          : msg || 'Registration failed. Please try again.',
       )
     } finally {
       setTxPending(false)
