@@ -1,15 +1,16 @@
-import { createContext, useContext, useMemo, type ReactNode } from 'react'
+import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
 import { useWalletConnect } from '@btc-vision/walletconnect'
 import type { AbstractRpcProvider } from 'opnet'
 import type { Address } from '@btc-vision/transaction'
 import type { WalletBalance } from '@btc-vision/walletconnect'
 import { formatAddress } from '../utils/formatting'
+import { getProvider } from '../services/ProviderService'
 
 export interface WalletState {
   address: Address | null
   walletAddress: string | null
   publicKey: string | null
-  hashedMLDSAKey: string | null
+  addressHex: string | null
   isConnected: boolean
   displayAddress: string
   connect: () => void
@@ -23,7 +24,7 @@ const WalletContext = createContext<WalletState>({
   address: null,
   walletAddress: null,
   publicKey: null,
-  hashedMLDSAKey: null,
+  addressHex: null,
   isConnected: false,
   displayAddress: '',
   connect: () => {},
@@ -35,6 +36,33 @@ const WalletContext = createContext<WalletState>({
 
 export function WalletProvider({ children }: { children: ReactNode }) {
   const wc = useWalletConnect()
+  const [addressHex, setAddressHex] = useState<string | null>(null)
+
+  // Resolve wallet address to OPNet Address to get ML-DSA hash for ownership comparison
+  useEffect(() => {
+    async function resolveAddress() {
+      if (wc.walletAddress && wc.publicKey) {
+        try {
+          // First try walletconnect's hashedMLDSAKey
+          if (wc.hashedMLDSAKey) {
+            setAddressHex('0x' + wc.hashedMLDSAKey.replace(/^0x/, ''))
+            return
+          }
+          // Fallback: resolve via provider.getPublicKeyInfo
+          const provider = getProvider()
+          const resolved = await provider.getPublicKeyInfo(wc.walletAddress, false)
+          if (resolved) {
+            setAddressHex(resolved.toHex())
+          }
+        } catch (err) {
+          console.error('[BNS] Failed to resolve address hex:', err)
+        }
+      } else {
+        setAddressHex(null)
+      }
+    }
+    resolveAddress()
+  }, [wc.walletAddress, wc.publicKey, wc.hashedMLDSAKey])
 
   const state = useMemo<WalletState>(() => {
     const isConnected = wc.publicKey !== null
@@ -42,7 +70,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       address: wc.address,
       walletAddress: wc.walletAddress,
       publicKey: wc.publicKey,
-      hashedMLDSAKey: wc.hashedMLDSAKey,
+      addressHex,
       isConnected,
       displayAddress: wc.walletAddress ? formatAddress(wc.walletAddress) : '',
       connect: () => wc.openConnectModal(),
@@ -51,7 +79,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       balance: wc.walletBalance,
       connecting: wc.connecting,
     }
-  }, [wc])
+  }, [wc, addressHex])
 
   return (
     <WalletContext.Provider value={state}>

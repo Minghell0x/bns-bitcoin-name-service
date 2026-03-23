@@ -14,13 +14,13 @@ export default function SearchResults() {
   const [years, setYears] = useState(1)
 
   const { domain, price, status, loading, error, refetch } = useDomainLookup(domainName, years)
-  const { walletAddress, isConnected, connect, provider: walletProvider, address, hashedMLDSAKey } = useWallet()
+  const { walletAddress, isConnected, connect, provider: walletProvider, address, addressHex } = useWallet()
 
   const [renewPending, setRenewPending] = useState(false)
   const [renewError, setRenewError] = useState<string | null>(null)
 
   const isOwnerCheck = !!(domain && (
-    (domain.ownerHex && hashedMLDSAKey && domain.ownerHex.toLowerCase() === ('0x' + hashedMLDSAKey).toLowerCase()) ||
+    (domain.ownerHex && addressHex && domain.ownerHex.toLowerCase() === addressHex.toLowerCase()) ||
     (walletAddress && domain.owner.toLowerCase() === walletAddress.toLowerCase())
   ))
 

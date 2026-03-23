@@ -33,7 +33,7 @@ export function daysUntilExpiry(expiresAt: bigint): number {
 
 /**
  * Compare domain owner against connected wallet.
- * Primary: ownerHex (0x-prefixed) vs hashedMLDSAKey (no prefix) from walletconnect.
+ * Primary: ownerHex (0x-prefixed) vs addressHex (no prefix) from walletconnect.
  * Fallback: generic string match against walletAddress.
  */
 export function isOwner(
@@ -41,12 +41,12 @@ export function isOwner(
   domainOwnerHex: string,
   _domainOwnerP2tr: string,
   walletAddress: string | null,
-  hashedMLDSAKey?: string | null,
+  addressHex?: string | null,
 ): boolean {
   // Primary: compare ML-DSA hashes (contract stores 0x-prefixed, wallet gives raw hex)
-  if (hashedMLDSAKey && domainOwnerHex) {
+  if (addressHex && domainOwnerHex) {
     const contractHash = domainOwnerHex.toLowerCase().replace(/^0x/, '')
-    const walletHash = hashedMLDSAKey.toLowerCase().replace(/^0x/, '')
+    const walletHash = addressHex.toLowerCase().replace(/^0x/, '')
     if (contractHash === walletHash) return true
   }
   // Fallback: direct string match

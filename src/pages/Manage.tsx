@@ -46,7 +46,7 @@ const statusConfig: Record<DomainStatus, { badge: string; dot: string; label: st
 function ManageContent() {
   const { domain: domainParam } = useParams<{ domain: string }>()
   const domainName = domainParam?.replace(/\.btc$/, '') ?? ''
-  const { walletAddress, address, provider: walletProvider, hashedMLDSAKey } = useWallet()
+  const { walletAddress, address, provider: walletProvider, addressHex } = useWallet()
 
   // Domain info state
   const [domainInfo, setDomainInfo] = useState<DomainInfo | null>(null)
@@ -144,7 +144,7 @@ function ManageContent() {
 
   const isOwner = domainInfo
     ? (
-        (domainInfo.ownerHex && hashedMLDSAKey && domainInfo.ownerHex.toLowerCase() === ('0x' + hashedMLDSAKey).toLowerCase()) ||
+        (domainInfo.ownerHex && addressHex && domainInfo.ownerHex.toLowerCase() === addressHex.toLowerCase()) ||
         (walletAddress && domainInfo.owner.toLowerCase() === walletAddress.toLowerCase())
       )
     : false
