@@ -2,7 +2,7 @@ import { Link, useLocation } from 'react-router-dom'
 
 const navLinks = [
   { label: 'Domains', path: '/' },
-  { label: 'Auction', path: '/auction' },
+  { label: 'Auction', path: '/ecosystem' },
   { label: 'Ecosystem', path: '/ecosystem' },
 ]
 
