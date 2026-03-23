@@ -1,7 +1,18 @@
+import { useState, useEffect } from 'react'
 import Countdown from '../components/Countdown'
 import SearchBar from '../components/SearchBar'
+import { fetchBasePrice } from '../services/DomainService'
+import { formatSats } from '../utils/formatting'
 
 export default function Landing() {
+  const [basePrice, setBasePrice] = useState<string | null>(null)
+
+  useEffect(() => {
+    fetchBasePrice()
+      .then((sats) => setBasePrice(formatSats(sats)))
+      .catch(() => setBasePrice(null))
+  }, [])
+
   return (
     <main className="relative overflow-hidden">
       {/* Hero Section */}
@@ -40,7 +51,7 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Value Proposition Section: Bento/Asymmetric Cards */}
+      {/* Value Proposition Section */}
       <section className="max-w-screen-2xl mx-auto px-8 pb-32">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-10">
           {/* Own Your Identity Card */}
@@ -74,18 +85,20 @@ export default function Landing() {
             </div>
           </div>
 
-          {/* Stats Column */}
+          {/* Stats Column — Real data */}
           <div className="md:col-span-5 grid grid-rows-2 gap-10">
             <div className="bg-surface-container-low rounded-lg p-10 flex flex-col justify-center border-l-2 border-primary/20">
-              <h3 className="font-mono text-tertiary text-4xl font-bold mb-2">248.9k</h3>
+              <h3 className="font-mono text-tertiary text-4xl font-bold mb-2">
+                {basePrice ?? '...'}
+              </h3>
               <p className="font-headline font-semibold text-outline uppercase text-[10px] tracking-widest">
-                Active Registrations
+                Base Domain Price
               </p>
             </div>
             <div className="bg-surface-container-low rounded-lg p-10 flex flex-col justify-center border-l-2 border-primary/20">
-              <h3 className="font-mono text-tertiary text-4xl font-bold mb-2">10.4 BTC</h3>
+              <h3 className="font-mono text-tertiary text-4xl font-bold mb-2">OPNet</h3>
               <p className="font-headline font-semibold text-outline uppercase text-[10px] tracking-widest">
-                Volume Traded (24h)
+                Bitcoin L1 (Testnet)
               </p>
             </div>
           </div>

@@ -1,13 +1,15 @@
 import { Link, useLocation } from 'react-router-dom'
+import { useWallet } from '../contexts/WalletContext'
+import WalletButton from './WalletButton'
 
 const navLinks = [
   { label: 'Domains', path: '/' },
-  { label: 'Auction', path: '/ecosystem' },
   { label: 'Ecosystem', path: '/ecosystem' },
 ]
 
 export default function Navbar() {
   const location = useLocation()
+  const { isConnected } = useWallet()
 
   return (
     <nav className="fixed top-0 w-full z-50 glass-nav shadow-2xl shadow-black/40">
@@ -30,11 +32,21 @@ export default function Navbar() {
               {link.label}
             </Link>
           ))}
+          {isConnected && (
+            <Link
+              to="/dashboard"
+              className={
+                location.pathname === '/dashboard'
+                  ? 'text-primary border-b-2 border-primary pb-1'
+                  : 'text-gray-400 hover:text-white transition-colors'
+              }
+            >
+              My Domains
+            </Link>
+          )}
         </div>
 
-        <button className="primary-gradient text-[#2b1700] px-6 py-2.5 rounded-full font-headline font-bold active:scale-95 duration-200 transition-all hover:shadow-[0_0_20px_rgba(232,145,12,0.3)]">
-          Connect Wallet
-        </button>
+        <WalletButton />
       </div>
     </nav>
   )
