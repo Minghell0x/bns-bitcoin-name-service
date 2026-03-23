@@ -18,6 +18,7 @@ export default function Ecosystem() {
   )
   const [basePrice, setBasePrice] = useState<bigint | null>(null)
   const [featured, setFeatured] = useState<AuctionEntry | null>(null)
+  const [filter, setFilter] = useState<'all' | 'declining'>('all')
 
   useEffect(() => {
     fetchBasePrice().then(setBasePrice).catch(() => {})
@@ -59,14 +60,28 @@ export default function Ecosystem() {
         </div>
 
         <div className="flex-1 space-y-1 font-mono text-sm">
-          <a className="flex items-center gap-3 bg-gradient-to-r from-[#e8910c]/20 to-transparent text-primary border-l-4 border-primary-container px-6 py-3" href="#">
+          <button
+            onClick={() => setFilter('all')}
+            className={`w-full flex items-center gap-3 px-6 py-3 transition-colors text-left ${
+              filter === 'all'
+                ? 'bg-gradient-to-r from-[#e8910c]/20 to-transparent text-primary border-l-4 border-primary-container'
+                : 'text-slate-500 hover:text-slate-300 hover:bg-surface-container'
+            }`}
+          >
             <span className="material-symbols-outlined text-lg">gavel</span>
-            Live Prices
-          </a>
-          <a className="flex items-center gap-3 text-slate-500 hover:text-slate-300 hover:bg-surface-container px-6 py-3 transition-colors" href="#">
+            All Domains
+          </button>
+          <button
+            onClick={() => setFilter('declining')}
+            className={`w-full flex items-center gap-3 px-6 py-3 transition-colors text-left ${
+              filter === 'declining'
+                ? 'bg-gradient-to-r from-[#e8910c]/20 to-transparent text-primary border-l-4 border-primary-container'
+                : 'text-slate-500 hover:text-slate-300 hover:bg-surface-container'
+            }`}
+          >
             <span className="material-symbols-outlined text-lg">trending_down</span>
             Declining Now
-          </a>
+          </button>
           <Link to="/dashboard" className="flex items-center gap-3 text-slate-500 hover:text-slate-300 hover:bg-surface-container px-6 py-3 transition-colors">
             <span className="material-symbols-outlined text-lg">person_pin</span>
             My Domains
@@ -153,7 +168,9 @@ export default function Ecosystem() {
                 <p className="text-slate-400 text-xs font-mono">Prices decline every block until bought</p>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {auctions.slice(1).map((entry) => (
+                {auctions.slice(1)
+                  .filter((e) => filter === 'all' || (e.price && e.price.auctionPriceSats > 0n))
+                  .map((entry) => (
                   <div key={entry.name} className="bg-surface-container-low rounded-lg p-6 hover:bg-surface-container transition-all group border border-transparent hover:border-white/5">
                     <div className="flex justify-between items-start mb-10">
                       <div>
