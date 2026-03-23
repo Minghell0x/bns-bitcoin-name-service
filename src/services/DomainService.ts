@@ -12,9 +12,20 @@ export async function lookupDomain(name: string): Promise<{
 }> {
   const contract = await getNameResolverContract()
   const result = await contract.getDomain(name)
+  // Convert owner Address to p2tr Bitcoin address for comparison with walletAddress
+  let ownerStr = ''
+  try {
+    const ownerAddr = result.properties.owner
+    if (ownerAddr) {
+      ownerStr = ownerAddr.p2tr(networks.opnetTestnet)
+    }
+  } catch {
+    ownerStr = result.properties.owner?.toString() ?? ''
+  }
+
   const domain: DomainInfo = {
     exists: result.properties.exists,
-    owner: result.properties.owner?.toString() ?? '',
+    owner: ownerStr,
     createdAt: result.properties.createdAt,
     expiresAt: result.properties.expiresAt,
     ttl: result.properties.ttl,
