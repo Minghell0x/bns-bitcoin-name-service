@@ -75,7 +75,7 @@ export default function Ecosystem() {
     })
 
     // Fetch recent activity
-    fetchRecentActivity(100)
+    fetchRecentActivity(500)
       .then(setRecentActivity)
       .catch(() => {})
       .finally(() => setActivityLoading(false))
@@ -215,7 +215,7 @@ export default function Ecosystem() {
                 <section>
                   <div className="flex justify-between items-center mb-6">
                     <h2 className="text-2xl font-bold font-headline">Recent Activity</h2>
-                    <span className="text-[10px] font-mono text-slate-500 uppercase tracking-widest px-3 py-1 rounded-full bg-surface-container-highest">Last 100 blocks</span>
+                    <span className="text-[10px] font-mono text-slate-500 uppercase tracking-widest px-3 py-1 rounded-full bg-surface-container-highest">Last 500 blocks</span>
                   </div>
                   {activityLoading ? (
                     <div className="bg-surface-container-low rounded-xl p-8 text-center border border-white/5">
@@ -229,9 +229,9 @@ export default function Ecosystem() {
                     </div>
                   ) : (
                     <div className="space-y-2">
-                      {recentActivity.map((activity) => (
+                      {recentActivity.map((activity, i) => (
                         <a
-                          key={activity.txHash}
+                          key={`${activity.txHash}-${i}`}
                           href={`https://mempool.opnet.org/it/testnet4/tx/${activity.txHash}`}
                           target="_blank"
                           rel="noopener noreferrer"
@@ -240,21 +240,33 @@ export default function Ecosystem() {
                           <div className="flex items-center gap-3">
                             <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
                               activity.type === 'registration' ? 'bg-primary/10 text-primary' :
+                              activity.type === 'reservation' ? 'bg-primary/10 text-primary' :
                               activity.type === 'renewal' ? 'bg-tertiary/10 text-tertiary' :
-                              'bg-secondary/10 text-secondary'
+                              activity.type === 'transfer' ? 'bg-secondary/10 text-secondary' :
+                              'bg-outline/10 text-outline'
                             }`}>
                               <span className="material-symbols-outlined text-sm">
-                                {activity.type === 'registration' ? 'add_circle' :
-                                 activity.type === 'renewal' ? 'autorenew' : 'swap_horiz'}
+                                {activity.type === 'registration' ? 'how_to_reg' :
+                                 activity.type === 'reservation' ? 'lock' :
+                                 activity.type === 'renewal' ? 'autorenew' :
+                                 activity.type === 'transfer' ? 'swap_horiz' : 'receipt_long'}
                               </span>
                             </div>
                             <div>
-                              <p className="text-sm font-semibold capitalize">{activity.type}</p>
-                              <p className="text-[10px] font-mono text-slate-500">Block {activity.blockHeight}</p>
+                              <p className="text-sm font-semibold">{activity.label}</p>
+                              <p className="text-[10px] font-mono text-slate-500">
+                                Block {activity.blockHeight}
+                                {activity.events.length > 0 && ` • ${activity.events.join(', ')}`}
+                              </p>
                             </div>
                           </div>
                           <div className="flex items-center gap-2">
-                            <p className="text-xs font-mono text-slate-400 truncate max-w-[120px]">{activity.txHash}</p>
+                            <div className="text-right">
+                              <p className="text-xs font-mono text-slate-400 truncate max-w-[140px]">{activity.txHash}</p>
+                              <p className="text-[9px] text-slate-600">
+                                {new Date(activity.timestamp * 1000).toLocaleString()}
+                              </p>
+                            </div>
                             <span className="material-symbols-outlined text-xs text-outline group-hover:text-primary transition-colors">open_in_new</span>
                           </div>
                         </a>

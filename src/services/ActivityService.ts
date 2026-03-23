@@ -2,61 +2,92 @@ import { getProvider } from './ProviderService'
 import { CONTRACT_ADDRESS } from '../config/constants'
 
 export interface RecentActivity {
-  type: 'registration' | 'renewal' | 'transfer'
+  type: 'registration' | 'renewal' | 'transfer' | 'reservation' | 'other'
+  label: string
   txHash: string
   blockHeight: number
   timestamp: number
+  events: string[]
 }
 
-/**
- * Fetch recent contract interactions from the last N blocks.
- * Scans blocks for transactions targeting the BNS contract.
- */
+const EVENT_MAP: Record<string, { type: RecentActivity['type']; label: string }> = {
+  DomainRegistered: { type: 'registration', label: 'Domain Registered' },
+  DomainReserved: { type: 'reservation', label: 'Domain Reserved' },
+  DomainRenewed: { type: 'renewal', label: 'Domain Renewed' },
+  DomainTransferCompleted: { type: 'transfer', label: 'Domain Transferred' },
+  DomainTransferInitiated: { type: 'transfer', label: 'Transfer Initiated' },
+  SubdomainCreated: { type: 'other', label: 'Subdomain Created' },
+}
+
 export async function fetchRecentActivity(blocksToScan = 50): Promise<RecentActivity[]> {
   const provider = getProvider()
   const currentBlock = await provider.getBlockNumber()
-  const startBlock = Number(currentBlock) - blocksToScan
+  const startBlock = Math.max(0, Number(currentBlock) - blocksToScan)
 
   const activities: RecentActivity[] = []
   const contractAddr = CONTRACT_ADDRESS.toLowerCase()
+  console.log('[BNS Activity] Scanning blocks', startBlock, 'to', Number(currentBlock), 'for contract', contractAddr)
 
-  // Fetch recent blocks with transactions
-  const blockNumbers: number[] = []
-  for (let i = Number(currentBlock); i > startBlock && i > 0; i--) {
-    blockNumbers.push(i)
-  }
+  // Fetch blocks in batches of 10
+  for (let i = Number(currentBlock); i > startBlock; i -= 10) {
+    const batch: bigint[] = []
+    for (let j = i; j > Math.max(startBlock, i - 10); j--) {
+      batch.push(BigInt(j))
+    }
 
-  // Fetch blocks in batches
-  const batchSize = 10
-  for (let i = 0; i < blockNumbers.length; i += batchSize) {
-    const batch = blockNumbers.slice(i, i + batchSize)
     try {
-      const blocks = await provider.getBlocks(batch.map(BigInt), true)
+      const blocks = await provider.getBlocks(batch, true)
       for (const block of blocks) {
         for (const tx of block.transactions) {
-          // Check if this transaction interacts with our contract
-          const interactionTx = tx as { contractAddress?: string; events?: Record<string, unknown[]> }
-          if (interactionTx.contractAddress?.toLowerCase() === contractAddr) {
-            // Determine activity type from events
-            let type: RecentActivity['type'] = 'registration'
-            if (interactionTx.events) {
-              const eventKeys = Object.keys(interactionTx.events).join(',').toLowerCase()
-              if (eventKeys.includes('renewed')) type = 'renewal'
-              else if (eventKeys.includes('transfer')) type = 'transfer'
-            }
-            activities.push({
-              type,
-              txHash: tx.hash,
-              blockHeight: Number(block.height),
-              timestamp: block.time,
-            })
+          const itx = tx as {
+            contractAddress?: string
+            events?: Record<string, Array<{ type: string; data: Uint8Array }>>
+            revert?: string | Uint8Array
           }
+
+          // Skip reverted txs
+          if (itx.revert) continue
+
+          // Log all contract interactions for debugging
+          if (itx.contractAddress) {
+            console.log('[BNS Activity] TX', tx.hash.slice(0, 12), 'contract:', itx.contractAddress, 'match:', itx.contractAddress.toLowerCase() === contractAddr)
+          }
+
+          // Check if transaction targets our contract
+          if (itx.contractAddress?.toLowerCase() !== contractAddr) continue
+
+          // Parse events to determine activity type
+          const eventNames: string[] = []
+          let activityType: RecentActivity['type'] = 'other'
+          let label = 'Contract Interaction'
+
+          if (itx.events) {
+            for (const eventList of Object.values(itx.events)) {
+              for (const evt of eventList) {
+                eventNames.push(evt.type)
+                const mapped = EVENT_MAP[evt.type]
+                if (mapped) {
+                  activityType = mapped.type
+                  label = mapped.label
+                }
+              }
+            }
+          }
+
+          activities.push({
+            type: activityType,
+            label,
+            txHash: tx.hash,
+            blockHeight: Number(block.height),
+            timestamp: block.time,
+            events: eventNames,
+          })
         }
       }
     } catch {
-      // Block fetch failed, skip batch
+      // Block fetch failed, skip
     }
   }
 
-  return activities.slice(0, 20) // Return max 20 items
+  return activities.slice(0, 30)
 }
