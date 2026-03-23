@@ -98,10 +98,38 @@ export async function reserveDomainTx(
 ): Promise<{ txHash: string }> {
   const contract = walletProvider ? getWriteContract(walletProvider, senderAddress!) : await getNameResolverContract()
 
-  // reserveDomain just locks the name — no payment needed here
+  // Fetch price and treasury — reserveDomain also requires the fee
+  const [priceResult, treasuryResult] = await Promise.all([
+    contract.getDomainPrice(name, BigInt(years)),
+    contract.getTreasuryAddress(),
+  ])
+  const totalPrice = priceResult.properties.totalPriceSats
+  const treasuryAddress = treasuryResult.properties.treasuryAddress
+
+  // setTransactionDetails BEFORE simulate
+  contract.setTransactionDetails({
+    inputs: [],
+    outputs: [
+      {
+        to: treasuryAddress,
+        value: totalPrice,
+        index: 1,
+        flags: TransactionOutputFlags.hasTo,
+      },
+    ],
+  })
+
   const callResult = await contract.reserveDomain(name, BigInt(years))
-  const params = buildTxParams(refundAddress, 500_000n)
-  const receipt = await callResult.sendTransaction(params)
+  const params = buildTxParams(refundAddress, totalPrice + 100_000n)
+  const receipt = await callResult.sendTransaction({
+    ...params,
+    extraOutputs: [
+      {
+        address: treasuryAddress,
+        value: totalPrice as Satoshi,
+      },
+    ],
+  })
   return { txHash: receipt.transactionId }
 }
 
