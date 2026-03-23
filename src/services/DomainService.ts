@@ -1,7 +1,7 @@
 import { networks, type Satoshi } from '@btc-vision/bitcoin'
 import type { Address } from '@btc-vision/transaction'
-import { TransactionOutputFlags, type TransactionParameters } from 'opnet'
-import { getNameResolverContract } from './ContractService'
+import { TransactionOutputFlags, type AbstractRpcProvider, type TransactionParameters } from 'opnet'
+import { getNameResolverContract, getWriteContract } from './ContractService'
 import type { DomainInfo, DomainPrice, DomainStatus, Reservation } from '../types'
 
 // ─── READ METHODS (no wallet needed) ────────────────────────────
@@ -84,8 +84,9 @@ export async function reserveDomainTx(
   name: string,
   years: number,
   refundAddress: string,
+  walletProvider?: AbstractRpcProvider | null,
 ): Promise<{ txHash: string }> {
-  const contract = await getNameResolverContract()
+  const contract = walletProvider ? getWriteContract(walletProvider) : await getNameResolverContract()
 
   // 1. Fetch price and treasury address
   const [priceResult, treasuryResult] = await Promise.all([
@@ -128,8 +129,9 @@ export async function reserveDomainTx(
 export async function completeRegistrationTx(
   name: string,
   refundAddress: string,
+  walletProvider?: AbstractRpcProvider | null,
 ): Promise<{ txHash: string }> {
-  const contract = await getNameResolverContract()
+  const contract = walletProvider ? getWriteContract(walletProvider) : await getNameResolverContract()
   const callResult = await contract.completeRegistration(name)
   const params = buildTxParams(refundAddress, 500_000n)
   const receipt = await callResult.sendTransaction(params)
@@ -140,8 +142,9 @@ export async function renewDomainTx(
   name: string,
   years: number,
   refundAddress: string,
+  walletProvider?: AbstractRpcProvider | null,
 ): Promise<{ txHash: string }> {
-  const contract = await getNameResolverContract()
+  const contract = walletProvider ? getWriteContract(walletProvider) : await getNameResolverContract()
 
   // 1. Fetch price and treasury
   const [priceResult, treasuryResult] = await Promise.all([
@@ -185,8 +188,9 @@ export async function transferDomainTx(
   name: string,
   newOwner: Address,
   refundAddress: string,
+  walletProvider?: AbstractRpcProvider | null,
 ): Promise<{ txHash: string }> {
-  const contract = await getNameResolverContract()
+  const contract = walletProvider ? getWriteContract(walletProvider) : await getNameResolverContract()
   const callResult = await contract.transferDomain(name, newOwner)
   const params = buildTxParams(refundAddress, 1_000_000n)
   const receipt = await callResult.sendTransaction(params)

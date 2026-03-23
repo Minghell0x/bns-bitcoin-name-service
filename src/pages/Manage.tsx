@@ -46,7 +46,7 @@ const statusConfig: Record<DomainStatus, { badge: string; dot: string; label: st
 function ManageContent() {
   const { domain: domainParam } = useParams<{ domain: string }>()
   const domainName = domainParam?.replace(/\.btc$/, '') ?? ''
-  const { walletAddress, address } = useWallet()
+  const { walletAddress, address, provider: walletProvider } = useWallet()
 
   // Domain info state
   const [domainInfo, setDomainInfo] = useState<DomainInfo | null>(null)
@@ -114,7 +114,7 @@ function ManageContent() {
     setRenewError(null)
     setRenewSuccess(null)
     try {
-      const { txHash } = await renewDomainTx(domainName, renewYears, walletAddress)
+      const { txHash } = await renewDomainTx(domainName, renewYears, walletAddress, walletProvider)
       setRenewSuccess(txHash)
       await loadDomain()
     } catch (err) {
@@ -131,7 +131,7 @@ function ManageContent() {
     setTransferSuccess(null)
     try {
       const newOwner = transferAddress.trim() as unknown as Address
-      const { txHash } = await transferDomainTx(domainName, newOwner, walletAddress)
+      const { txHash } = await transferDomainTx(domainName, newOwner, walletAddress, walletProvider)
       setTransferSuccess(txHash)
       setTransferAddress('')
       await loadDomain()
