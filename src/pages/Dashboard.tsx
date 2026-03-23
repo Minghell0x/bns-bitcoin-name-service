@@ -68,23 +68,15 @@ function DashboardContent() {
   const [renewError, setRenewError] = useState<string | null>(null)
 
   const loadDomains = useCallback(async () => {
-    if (!walletAddress) return
+    if (!walletAddress || !addressHex) return
     setLoading(true)
     const names = getOwnedDomainNames(walletAddress)
-    console.log('[BNS Dashboard] Loading domains for', walletAddress, 'found in storage:', names)
-    console.log('[BNS Dashboard] addressHex:', addressHex)
-    console.log('[BNS Dashboard] address object:', address)
-    console.log('[BNS Dashboard] address?.toHex?.():', address?.toHex?.())
-    console.log('[BNS Dashboard] address?.toString?.():', address?.toString?.())
     const results: EnrichedDomain[] = []
 
     for (const name of names) {
       try {
         const { domain: info } = await lookupDomain(name)
-        console.log('[BNS Dashboard] Domain', name, '→ exists:', info.exists, 'ownerHex:', info.ownerHex, 'ownerP2tr:', info.ownerP2tr, 'owner:', info.owner)
-        const ownerMatch = isOwner(info.owner, info.ownerHex, info.ownerP2tr, walletAddress, addressHex)
-        console.log('[BNS Dashboard] Owner match:', ownerMatch)
-        if (info.exists && ownerMatch) {
+        if (info.exists && isOwner(info.owner, info.ownerHex, info.ownerP2tr, walletAddress, addressHex)) {
           const days = daysUntilExpiry(info.expiresAt)
           let status: EnrichedDomain['status'] = 'active'
           if (info.inGracePeriod) status = 'grace-period'

@@ -50,13 +50,9 @@ export function WalletProvider({ children }: { children: ReactNode }) {
           }
           // Fallback: resolve via provider.getPublicKeyInfo
           const provider = getProvider()
-          console.log('[BNS Wallet] Resolving address via getPublicKeyInfo for:', wc.walletAddress)
           const resolved = await provider.getPublicKeyInfo(wc.walletAddress, false)
-          console.log('[BNS Wallet] Resolved:', resolved, 'toHex:', resolved?.toHex?.())
           if (resolved) {
             setAddressHex(resolved.toHex())
-          } else {
-            console.warn('[BNS Wallet] getPublicKeyInfo returned undefined')
           }
         } catch (err) {
           console.error('[BNS] Failed to resolve address hex:', err)
