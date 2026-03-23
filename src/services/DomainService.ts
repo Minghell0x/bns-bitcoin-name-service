@@ -1,5 +1,10 @@
+import { networks } from '@btc-vision/bitcoin'
+import type { Address } from '@btc-vision/transaction'
+import type { TransactionParameters } from 'opnet'
 import { getNameResolverContract } from './ContractService'
 import type { DomainInfo, DomainPrice, DomainStatus, Reservation } from '../types'
+
+// ─── READ METHODS (no wallet needed) ────────────────────────────
 
 export async function lookupDomain(name: string): Promise<{
   domain: DomainInfo
@@ -58,6 +63,70 @@ export async function resolveDomain(name: string): Promise<string> {
   const result = await contract.resolve(name)
   return result.properties.owner?.toString() ?? ''
 }
+
+// ─── WRITE METHODS (wallet required) ────────────────────────────
+// Pattern: simulate → sendTransaction with signer=null (OP_WALLET signs)
+// CRITICAL: must include network in txParams (incident INC-mmuv8exw)
+
+function buildTxParams(refundTo: string, maxSats: bigint): TransactionParameters {
+  return {
+    signer: null,
+    mldsaSigner: null,
+    refundTo,
+    maximumAllowedSatToSpend: maxSats,
+    network: networks.opnetTestnet,
+    feeRate: 100,
+  }
+}
+
+export async function reserveDomainTx(
+  name: string,
+  years: number,
+  refundAddress: string,
+): Promise<{ txHash: string }> {
+  const contract = await getNameResolverContract()
+  const callResult = await contract.reserveDomain(name, BigInt(years))
+  const params = buildTxParams(refundAddress, 1_000_000n)
+  const receipt = await callResult.sendTransaction(params)
+  return { txHash: receipt.transactionId }
+}
+
+export async function completeRegistrationTx(
+  name: string,
+  refundAddress: string,
+): Promise<{ txHash: string }> {
+  const contract = await getNameResolverContract()
+  const callResult = await contract.completeRegistration(name)
+  const params = buildTxParams(refundAddress, 1_000_000n)
+  const receipt = await callResult.sendTransaction(params)
+  return { txHash: receipt.transactionId }
+}
+
+export async function renewDomainTx(
+  name: string,
+  years: number,
+  refundAddress: string,
+): Promise<{ txHash: string }> {
+  const contract = await getNameResolverContract()
+  const callResult = await contract.renewDomain(name, BigInt(years))
+  const params = buildTxParams(refundAddress, 10_000_000n)
+  const receipt = await callResult.sendTransaction(params)
+  return { txHash: receipt.transactionId }
+}
+
+export async function transferDomainTx(
+  name: string,
+  newOwner: Address,
+  refundAddress: string,
+): Promise<{ txHash: string }> {
+  const contract = await getNameResolverContract()
+  const callResult = await contract.transferDomain(name, newOwner)
+  const params = buildTxParams(refundAddress, 1_000_000n)
+  const receipt = await callResult.sendTransaction(params)
+  return { txHash: receipt.transactionId }
+}
+
+// ─── HELPERS ────────────────────────────────────────────────────
 
 function computeStatus(domain: DomainInfo): DomainStatus {
   if (!domain.exists) return 'available'

@@ -51,7 +51,7 @@ export default function Dashboard() {
 }
 
 function DashboardContent() {
-  const { address } = useWallet()
+  const { walletAddress } = useWallet()
   const [domains, setDomains] = useState<EnrichedDomain[]>([])
   const [loading, setLoading] = useState(true)
   const [importName, setImportName] = useState('')
@@ -59,15 +59,15 @@ function DashboardContent() {
   const [importing, setImporting] = useState(false)
 
   const loadDomains = useCallback(async () => {
-    if (!address) return
+    if (!walletAddress) return
     setLoading(true)
-    const names = getOwnedDomainNames(address)
+    const names = getOwnedDomainNames(walletAddress)
     const results: EnrichedDomain[] = []
 
     for (const name of names) {
       try {
         const { domain: info } = await lookupDomain(name)
-        if (info.exists && info.owner.toLowerCase() === address.toLowerCase()) {
+        if (info.exists && info.owner.toLowerCase() === walletAddress.toLowerCase()) {
           const days = daysUntilExpiry(info.expiresAt)
           let status: EnrichedDomain['status'] = 'active'
           if (info.inGracePeriod) status = 'grace-period'
@@ -80,14 +80,14 @@ function DashboardContent() {
     }
     setDomains(results)
     setLoading(false)
-  }, [address])
+  }, [walletAddress])
 
   useEffect(() => {
     loadDomains()
   }, [loadDomains])
 
   async function handleImport() {
-    if (!importName || !address) return
+    if (!importName || !walletAddress) return
     setImporting(true)
     setImportError(null)
     const cleaned = importName.trim().toLowerCase().replace(/\.btc$/, '')
@@ -95,10 +95,10 @@ function DashboardContent() {
       const { domain: info } = await lookupDomain(cleaned)
       if (!info.exists) {
         setImportError('Domain not found')
-      } else if (info.owner.toLowerCase() !== address.toLowerCase()) {
+      } else if (info.owner.toLowerCase() !== walletAddress.toLowerCase()) {
         setImportError('You are not the owner of this domain')
       } else {
-        addOwnedDomain(address, cleaned)
+        addOwnedDomain(walletAddress, cleaned)
         setImportName('')
         await loadDomains()
       }
@@ -123,7 +123,7 @@ function DashboardContent() {
           <p className="text-[11px] font-mono uppercase tracking-[0.2em] text-zinc-500">Connected Identity</p>
           <div className="bg-surface-container-low px-6 py-4 rounded-2xl flex items-center gap-4 border border-outline-variant/10">
             <div className="space-y-1">
-              <p className="font-mono text-sm text-on-surface">{address ? formatAddress(address) : '...'}</p>
+              <p className="font-mono text-sm text-on-surface">{walletAddress ? formatAddress(walletAddress) : '...'}</p>
               <p className="text-xs text-primary font-semibold">{domains.length} Owned Domains</p>
             </div>
             <div className="w-10 h-10 rounded-full bg-gradient-to-br from-tertiary to-secondary opacity-80" />

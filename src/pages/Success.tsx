@@ -7,7 +7,7 @@ import { useWallet } from '../contexts/WalletContext'
 
 export default function Success() {
   const { domain = '' } = useParams()
-  const { address } = useWallet()
+  const { walletAddress } = useWallet()
   const [expiryDate, setExpiryDate] = useState<string>('Loading...')
   const [ownerAddr, setOwnerAddr] = useState<string>('...')
 
@@ -21,9 +21,9 @@ export default function Success() {
       })
       .catch(() => {
         setExpiryDate('Pending confirmation')
-        setOwnerAddr(address ? formatAddress(address) : '...')
+        setOwnerAddr(walletAddress ? formatAddress(walletAddress) : '...')
       })
-  }, [domain, address])
+  }, [domain, walletAddress])
 
   return (
     <main className="min-h-screen pt-32 pb-24 px-6 flex flex-col items-center">

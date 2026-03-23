@@ -1,12 +1,19 @@
 import { useParams, useSearchParams, useNavigate } from 'react-router-dom'
 import { useState, useEffect } from 'react'
+import { QRCodeSVG } from 'qrcode.react'
 import ProgressStepper from '../components/ProgressStepper'
 import WalletGuard from '../components/WalletGuard'
 import LoadingSkeleton from '../components/LoadingSkeleton'
 import ErrorState from '../components/ErrorState'
 import { useWallet } from '../contexts/WalletContext'
-import { fetchDomainPrice, fetchTreasuryAddress, fetchReservation } from '../services/DomainService'
-import { formatSats } from '../utils/formatting'
+import {
+  fetchDomainPrice,
+  fetchTreasuryAddress,
+  fetchReservation,
+  reserveDomainTx,
+  completeRegistrationTx,
+} from '../services/DomainService'
+import { formatSats, formatSatsAsBtc } from '../utils/formatting'
 import { addOwnedDomain } from '../utils/storage'
 import type { DomainPrice } from '../types'
 
@@ -21,7 +28,7 @@ export default function Registration() {
   const [searchParams] = useSearchParams()
   const years = Number(searchParams.get('years') || '1')
   const navigate = useNavigate()
-  const { address } = useWallet()
+  const { walletAddress } = useWallet()
 
   const [currentStep, setCurrentStep] = useState(1)
   const [price, setPrice] = useState<DomainPrice | null>(null)
@@ -29,8 +36,8 @@ export default function Registration() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [txPending, setTxPending] = useState(false)
+  const [txHash, setTxHash] = useState<string | null>(null)
 
-  // Fetch price and treasury on mount
   useEffect(() => {
     async function init() {
       try {
@@ -42,8 +49,7 @@ export default function Registration() {
         setPrice(priceResult)
         setTreasuryAddr(treasury)
 
-        // If already reserved by this user, skip to step 2
-        if (reservation.isActive && address && reservation.reserver.toLowerCase() === address.toLowerCase()) {
+        if (reservation.isActive && walletAddress && reservation.reserver.toLowerCase() === walletAddress.toLowerCase()) {
           setCurrentStep(2)
         }
       } catch (err) {
@@ -53,17 +59,15 @@ export default function Registration() {
       }
     }
     init()
-  }, [domain, years, address])
+  }, [domain, years, walletAddress])
 
   async function handleReserve() {
+    if (!walletAddress) return
     setTxPending(true)
     setError(null)
     try {
-      // TODO: Wire to actual reserveDomain contract call via OP_WALLET
-      // const contract = await getNameResolverContract()
-      // const result = await contract.reserveDomain(domain, BigInt(years))
-      // await sendTransaction({ ...result, signer: null, mldsaSigner: null, network: networks.opnetTestnet })
-      console.log('[BNS] Reserve domain:', domain, years)
+      const result = await reserveDomainTx(domain, years, walletAddress)
+      setTxHash(result.txHash)
       setCurrentStep(2)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to reserve domain')
@@ -73,25 +77,31 @@ export default function Registration() {
   }
 
   async function handleComplete() {
+    if (!walletAddress) return
     setTxPending(true)
     setError(null)
     try {
-      // TODO: Wire to actual completeRegistration contract call
-      console.log('[BNS] Complete registration:', domain)
-      if (address) addOwnedDomain(address, domain)
-      navigate(`/success/${domain}`)
+      const result = await completeRegistrationTx(domain, walletAddress)
+      addOwnedDomain(walletAddress, domain)
+      navigate(`/success/${domain}`, { state: { txHash: result.txHash } })
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Registration failed. Payment may not be confirmed yet — try again in a few minutes.')
+      setError(
+        err instanceof Error
+          ? err.message
+          : 'Registration failed. Payment may not be confirmed yet — try again in a few minutes.',
+      )
     } finally {
       setTxPending(false)
     }
   }
 
+  const btcAmount = price ? formatSatsAsBtc(price.totalPriceSats) : '0'
+  const btcUri = treasuryAddr ? `bitcoin:${treasuryAddr}?amount=${btcAmount}` : ''
+
   return (
     <WalletGuard message="Connect your OP_WALLET to register .btc domains on Bitcoin Layer 1.">
       <main className="flex-grow pt-32 pb-20 px-6 bg-mesh">
         <div className="max-w-4xl mx-auto">
-          {/* Domain Header */}
           <header className="mb-16 text-center">
             <div className="inline-block py-2 px-4 rounded-full bg-surface-container-low mb-4">
               <span className="text-tertiary font-mono text-xs uppercase tracking-[0.2em]">
@@ -112,7 +122,6 @@ export default function Registration() {
               <ProgressStepper steps={steps} currentStep={currentStep} />
 
               <div className="grid md:grid-cols-2 gap-12 items-start">
-                {/* Left Column */}
                 <div className="space-y-8">
                   {/* Step 1: Reserve */}
                   <section>
@@ -167,38 +176,58 @@ export default function Registration() {
                     </div>
                   </section>
 
-                  {/* Status */}
                   {currentStep === 2 && (
                     <div className="pt-4 flex items-center gap-3 text-tertiary">
                       <span className="material-symbols-outlined text-sm">schedule</span>
                       <span className="text-xs font-mono uppercase tracking-widest">
-                        Send BTC via OP_WALLET, then complete below
+                        Send BTC to treasury, then complete below
                       </span>
+                    </div>
+                  )}
+
+                  {txHash && (
+                    <div className="p-3 bg-surface-container-low rounded-xl">
+                      <p className="text-[10px] font-mono text-outline uppercase tracking-widest mb-1">Transaction</p>
+                      <p className="text-xs font-mono text-primary truncate">{txHash}</p>
                     </div>
                   )}
 
                   {error && <p className="text-error text-sm">{error}</p>}
                 </div>
 
-                {/* Right Column: QR */}
+                {/* QR Code */}
                 <div className="flex flex-col items-center justify-center bg-surface-container-low p-8 rounded-2xl aspect-square border border-white/5">
-                  <div className="bg-white p-3 rounded-lg shadow-inner mb-6">
-                    <div className="w-40 h-40 bg-gray-200 rounded flex items-center justify-center">
-                      <span className="material-symbols-outlined text-6xl text-gray-400">qr_code_2</span>
+                  {treasuryAddr ? (
+                    <>
+                      <div className="bg-white p-3 rounded-lg shadow-inner mb-6">
+                        <QRCodeSVG
+                          value={btcUri}
+                          size={160}
+                          bgColor="#ffffff"
+                          fgColor="#111317"
+                          level="M"
+                        />
+                      </div>
+                      <div className="text-center space-y-1">
+                        <p className="text-xs font-bold uppercase tracking-tighter text-on-surface">Scan with Wallet</p>
+                        <p className="text-[10px] text-on-surface-variant font-mono">
+                          {btcAmount} BTC to Treasury
+                        </p>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="flex items-center justify-center w-40 h-40">
+                      <div className="w-8 h-8 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
                     </div>
-                  </div>
-                  <div className="text-center space-y-1">
-                    <p className="text-xs font-bold uppercase tracking-tighter text-on-surface">Scan with Wallet</p>
-                    <p className="text-[10px] text-on-surface-variant font-mono">BTC Treasury Address</p>
-                  </div>
+                  )}
                 </div>
               </div>
 
               {/* Bottom Actions */}
               <div className="mt-12 pt-8 border-t border-white/5 flex flex-col md:flex-row gap-4 items-center justify-between">
                 <p className="text-[10px] text-on-surface-variant leading-tight max-w-xs">
-                  Transaction status is monitored automatically. Your domain will be finalized once the
-                  network confirms your payment.
+                  Your domain will be finalized once the network confirms your payment.
+                  Signet blocks may take up to 15 minutes.
                 </p>
                 {currentStep >= 2 && (
                   <button
@@ -213,11 +242,10 @@ export default function Registration() {
             </div>
           )}
 
-          {/* Technical Footer */}
           <div className="mt-12 flex justify-center gap-12 opacity-20 hover:opacity-100 transition-opacity duration-700">
             <div className="flex flex-col">
-              <span className="text-[10px] font-mono">OPNET_VER</span>
-              <span className="text-[10px] font-mono">TESTNET</span>
+              <span className="text-[10px] font-mono">NETWORK</span>
+              <span className="text-[10px] font-mono">OPNET TESTNET</span>
             </div>
             <div className="flex flex-col">
               <span className="text-[10px] font-mono">YEARS</span>
