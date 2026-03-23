@@ -68,7 +68,13 @@ export default function Registration() {
       setReserveTxHash(result.txHash)
       setCurrentStep(2)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to reserve domain')
+      const msg = err instanceof Error ? err.message : 'Failed to reserve domain'
+      // If already reserved, just advance to step 2
+      if (msg.toLowerCase().includes('already reserved')) {
+        setCurrentStep(2)
+      } else {
+        setError(msg)
+      }
     } finally {
       setTxPending(false)
     }
