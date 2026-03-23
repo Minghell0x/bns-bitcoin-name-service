@@ -72,7 +72,10 @@ function DashboardContent() {
     setLoading(true)
     const names = getOwnedDomainNames(walletAddress)
     console.log('[BNS Dashboard] Loading domains for', walletAddress, 'found in storage:', names)
-    console.log('[BNS Dashboard] Wallet address hex:', hashedMLDSAKey)
+    console.log('[BNS Dashboard] hashedMLDSAKey:', hashedMLDSAKey)
+    console.log('[BNS Dashboard] address object:', address)
+    console.log('[BNS Dashboard] address?.toHex?.():', address?.toHex?.())
+    console.log('[BNS Dashboard] address?.toString?.():', address?.toString?.())
     const results: EnrichedDomain[] = []
 
     for (const name of names) {
