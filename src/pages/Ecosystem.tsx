@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { fetchDomainPrice, fetchBasePrice } from '../services/DomainService'
+import { fetchRecentActivity, type RecentActivity } from '../services/ActivityService'
 import { formatSats } from '../utils/formatting'
 import SearchBar from '../components/SearchBar'
 import type { DomainPrice } from '../types'
@@ -31,6 +32,8 @@ export default function Ecosystem() {
 
   const [marketplacePrices, setBrowsePrices] = useState<Record<string, DomainPrice | null>>({})
   const [marketplaceLoading, setBrowseLoading] = useState(true)
+  const [recentActivity, setRecentActivity] = useState<RecentActivity[]>([])
+  const [activityLoading, setActivityLoading] = useState(true)
 
   useEffect(() => {
     fetchBasePrice().then(setBasePrice).catch(() => {})
@@ -70,6 +73,12 @@ export default function Ecosystem() {
       setBrowsePrices(prices)
       setBrowseLoading(false)
     })
+
+    // Fetch recent activity
+    fetchRecentActivity(100)
+      .then(setRecentActivity)
+      .catch(() => {})
+      .finally(() => setActivityLoading(false))
   }, [])
 
   return (
@@ -206,13 +215,52 @@ export default function Ecosystem() {
                 <section>
                   <div className="flex justify-between items-center mb-6">
                     <h2 className="text-2xl font-bold font-headline">Recent Activity</h2>
-                    <span className="text-[10px] font-mono text-slate-500 uppercase tracking-widest px-3 py-1 rounded-full bg-surface-container-highest">Coming Soon</span>
+                    <span className="text-[10px] font-mono text-slate-500 uppercase tracking-widest px-3 py-1 rounded-full bg-surface-container-highest">Last 100 blocks</span>
                   </div>
-                  <div className="bg-surface-container-low rounded-xl p-12 text-center border border-white/5">
-                    <span className="material-symbols-outlined text-5xl text-outline/40 mb-4">history</span>
-                    <p className="text-on-surface-variant text-sm mb-2">Recent registrations and transfers will appear here.</p>
-                    <p className="text-slate-500 text-xs font-mono">Event indexing in development — search by name for now.</p>
-                  </div>
+                  {activityLoading ? (
+                    <div className="bg-surface-container-low rounded-xl p-8 text-center border border-white/5">
+                      <div className="w-6 h-6 border-2 border-primary/30 border-t-primary rounded-full animate-spin mx-auto mb-3" />
+                      <p className="text-slate-500 text-xs font-mono">Scanning recent blocks...</p>
+                    </div>
+                  ) : recentActivity.length === 0 ? (
+                    <div className="bg-surface-container-low rounded-xl p-8 text-center border border-white/5">
+                      <span className="material-symbols-outlined text-4xl text-outline/40 mb-2">inbox</span>
+                      <p className="text-on-surface-variant text-sm">No recent activity found in the last 100 blocks.</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      {recentActivity.map((activity) => (
+                        <a
+                          key={activity.txHash}
+                          href={`https://mempool.opnet.org/it/testnet4/tx/${activity.txHash}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center justify-between p-4 bg-surface-container-low rounded-xl border border-transparent hover:border-white/5 transition-all group"
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                              activity.type === 'registration' ? 'bg-primary/10 text-primary' :
+                              activity.type === 'renewal' ? 'bg-tertiary/10 text-tertiary' :
+                              'bg-secondary/10 text-secondary'
+                            }`}>
+                              <span className="material-symbols-outlined text-sm">
+                                {activity.type === 'registration' ? 'add_circle' :
+                                 activity.type === 'renewal' ? 'autorenew' : 'swap_horiz'}
+                              </span>
+                            </div>
+                            <div>
+                              <p className="text-sm font-semibold capitalize">{activity.type}</p>
+                              <p className="text-[10px] font-mono text-slate-500">Block {activity.blockHeight}</p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <p className="text-xs font-mono text-slate-400 truncate max-w-[120px]">{activity.txHash}</p>
+                            <span className="material-symbols-outlined text-xs text-outline group-hover:text-primary transition-colors">open_in_new</span>
+                          </div>
+                        </a>
+                      ))}
+                    </div>
+                  )}
                 </section>
 
                 {/* How It Works */}
