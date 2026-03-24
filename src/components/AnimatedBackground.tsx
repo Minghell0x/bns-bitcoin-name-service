@@ -1,56 +1,42 @@
 export default function AnimatedBackground() {
   return (
     <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden" aria-hidden="true">
-      {/* Primary amber orb — top right */}
+      {/* Amber glow — top right, slow drift */}
       <div
-        className="absolute w-[900px] h-[900px] rounded-full"
+        className="absolute rounded-full blur-[120px]"
         style={{
-          background: 'radial-gradient(circle, rgba(232, 145, 12, 0.15) 0%, transparent 70%)',
-          top: '-25%',
-          right: '-15%',
+          width: '50vw',
+          height: '50vw',
+          background: 'rgba(232, 145, 12, 0.12)',
+          top: '-15%',
+          right: '-10%',
           animation: 'bgOrb1 20s ease-in-out infinite',
         }}
       />
 
-      {/* Blue orb — bottom left */}
+      {/* Blue glow — bottom left, slower drift */}
       <div
-        className="absolute w-[700px] h-[700px] rounded-full"
+        className="absolute rounded-full blur-[100px]"
         style={{
-          background: 'radial-gradient(circle, rgba(137, 206, 255, 0.1) 0%, transparent 70%)',
-          bottom: '-20%',
-          left: '-10%',
+          width: '40vw',
+          height: '40vw',
+          background: 'rgba(137, 206, 255, 0.08)',
+          bottom: '-10%',
+          left: '-5%',
           animation: 'bgOrb2 25s ease-in-out infinite',
         }}
       />
 
-      {/* Amber pulse — center */}
+      {/* Small amber accent — center-left, gentle pulse */}
       <div
-        className="absolute w-[500px] h-[500px] rounded-full"
+        className="absolute rounded-full blur-[80px]"
         style={{
-          background: 'radial-gradient(circle, rgba(255, 184, 103, 0.08) 0%, transparent 70%)',
-          top: '35%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
+          width: '30vw',
+          height: '30vw',
+          background: 'rgba(255, 184, 103, 0.06)',
+          top: '40%',
+          left: '30%',
           animation: 'bgOrb3 15s ease-in-out infinite',
-        }}
-      />
-
-      {/* Dot grid */}
-      <div
-        className="absolute inset-0"
-        style={{
-          backgroundImage: 'radial-gradient(circle, rgba(255, 184, 103, 0.08) 1px, transparent 1px)',
-          backgroundSize: '40px 40px',
-        }}
-      />
-
-      {/* Gradient sweep */}
-      <div
-        className="absolute inset-0"
-        style={{
-          background: 'linear-gradient(135deg, transparent 0%, rgba(232, 145, 12, 0.04) 50%, transparent 100%)',
-          backgroundSize: '200% 200%',
-          animation: 'bgSweep 12s ease-in-out infinite',
         }}
       />
     </div>
