@@ -147,8 +147,8 @@ export default function Registration() {
     <WalletGuard message="Connect your OP_WALLET to register .btc domains on Bitcoin Layer 1.">
       <main className="flex-grow pt-32 pb-20 px-6 bg-mesh">
         <div className="max-w-3xl mx-auto">
-          <header className="mb-16 text-center">
-            <h1 className="text-6xl md:text-8xl font-extrabold font-headline tracking-tighter">
+          <header className="mb-16 text-center animate-fade-up">
+            <h1 className="text-4xl sm:text-6xl md:text-8xl font-extrabold font-headline tracking-tighter">
               {domain}<span className="text-primary font-mono">.btc</span>
             </h1>
             {price && (
@@ -163,7 +163,7 @@ export default function Registration() {
           ) : error && !price ? (
             <ErrorState message={error} onRetry={() => window.location.reload()} />
           ) : (
-            <div className="bg-[#161820] rounded-[16px] p-8 md:p-12 shadow-2xl relative overflow-hidden outline outline-1 outline-white/5">
+            <div className="bg-[#161820] rounded-[16px] p-8 md:p-12 shadow-2xl relative overflow-hidden outline outline-1 outline-white/5 animate-scale-in delay-200">
               <ProgressStepper steps={steps} currentStep={currentStep} />
 
               {/* ── STEP 1: Reserve & Pay ── */}

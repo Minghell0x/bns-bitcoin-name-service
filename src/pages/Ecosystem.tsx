@@ -158,7 +158,7 @@ export default function Ecosystem() {
       </div>
 
       {/* Main Content */}
-      <main className="xl:ml-64 pt-36 xl:pt-28 pb-12 px-8 flex-1">
+      <main className="xl:ml-64 pt-36 xl:pt-28 pb-12 px-8 flex-1 animate-fade-in">
         <div className="max-w-[1400px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-10">
           {/* Left: Primary Content */}
           <div className="lg:col-span-8 space-y-12">
@@ -304,7 +304,7 @@ export default function Ecosystem() {
 
                 {/* Featured Auction Hero */}
                 {featured?.price && (
-                  <section className="relative h-[500px] rounded-lg overflow-hidden bg-surface-container-low group">
+                  <section className="relative h-[300px] md:h-[500px] rounded-lg overflow-hidden bg-surface-container-low group">
                     <div className="absolute inset-0 bg-gradient-to-br from-[#111317] via-transparent to-[#e8910c]/10 z-10" />
                     <div className="absolute inset-0 opacity-30 mix-blend-overlay">
                       <img
@@ -326,7 +326,7 @@ export default function Ecosystem() {
                         </div>
                       </div>
                       <div>
-                        <h1 className="text-7xl font-extrabold tracking-tighter font-headline mb-4">
+                        <h1 className="text-4xl sm:text-6xl md:text-7xl font-extrabold tracking-tighter font-headline mb-4">
                           {featured.name}<span className="text-primary font-mono">.btc</span>
                         </h1>
                         <div className="flex items-end gap-12">

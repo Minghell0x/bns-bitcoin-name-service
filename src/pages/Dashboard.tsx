@@ -160,9 +160,9 @@ function DashboardContent() {
   return (
     <main className="pt-32 pb-24 px-8 max-w-7xl mx-auto space-y-12">
       {/* Header */}
-      <header className="grid lg:grid-cols-12 gap-8 items-end mb-16">
+      <header className="grid lg:grid-cols-12 gap-8 items-end mb-16 animate-fade-up">
         <div className="lg:col-span-7 space-y-6">
-          <h1 className="text-5xl md:text-7xl font-extrabold tracking-tighter leading-none font-headline">
+          <h1 className="text-3xl sm:text-5xl md:text-7xl font-extrabold tracking-tighter leading-none font-headline">
             Your <span className="text-primary italic">Sovereign</span> Domains
           </h1>
           <SearchBar size="compact" />
@@ -180,7 +180,7 @@ function DashboardContent() {
       </header>
 
       {/* Import Domain */}
-      <section className="bg-surface-container-low rounded-2xl p-6 flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+      <section className="bg-surface-container-low rounded-2xl p-6 flex flex-col sm:flex-row gap-4 items-start sm:items-center animate-fade-in delay-200">
         <div className="flex-1">
           <p className="text-sm font-bold mb-1">Import Existing Domain</p>
           <p className="text-xs text-on-surface-variant">Already own a .btc domain? Add it to your dashboard.</p>
@@ -204,7 +204,7 @@ function DashboardContent() {
       </section>
 
       {/* Domain Table */}
-      <section className="space-y-8">
+      <section className="space-y-8 animate-fade-in delay-300">
         <div className="flex justify-between items-end">
           <div>
             <h2 className="text-3xl font-bold font-headline tracking-tight">Your Domains</h2>

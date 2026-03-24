@@ -56,12 +56,12 @@ export default function Success() {
     <main className="min-h-screen pt-32 pb-24 px-6 flex flex-col items-center">
       {/* Domain Display */}
       <div className="mb-12 text-center">
-        <h1 className="text-6xl md:text-8xl font-extrabold tracking-tighter mb-2">
+        <h1 className="text-6xl md:text-8xl font-extrabold tracking-tighter mb-2 animate-scale-in">
           {domain}<span className="text-primary font-mono font-medium">.btc</span>
         </h1>
       </div>
 
-      <div className="w-full max-w-2xl bg-surface-container-low rounded-xl relative overflow-hidden">
+      <div className="w-full max-w-2xl bg-surface-container-low rounded-xl relative overflow-hidden animate-fade-up delay-200">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[300px] h-[300px] bg-primary/10 blur-[100px] pointer-events-none" />
         <div className="relative p-12 flex flex-col items-center text-center">
 

@@ -3,9 +3,11 @@ import Countdown from '../components/Countdown'
 import SearchBar from '../components/SearchBar'
 import { fetchBasePrice } from '../services/DomainService'
 import { formatSats } from '../utils/formatting'
+import { useScrollReveal } from '../hooks/useScrollReveal'
 
 export default function Landing() {
   const [basePrice, setBasePrice] = useState<string | null>(null)
+  const scrollRef = useScrollReveal()
 
   useEffect(() => {
     fetchBasePrice()
@@ -17,6 +19,12 @@ export default function Landing() {
     <main className="relative overflow-hidden">
       {/* Hero Section */}
       <section className="relative min-h-screen flex flex-col items-center justify-center pt-24 px-6 hero-gradient">
+        {/* Animated gradient mesh background */}
+        <div className="absolute inset-0 z-0 pointer-events-none">
+          <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-primary-container/5 rounded-full blur-[120px] animate-float-slow" />
+          <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-tertiary/3 rounded-full blur-[100px] animate-float" />
+        </div>
+
         {/* Background Visual: Geometric 3D Shard */}
         <div className="absolute inset-0 z-0 opacity-20 pointer-events-none flex items-center justify-center">
           <img
@@ -28,10 +36,12 @@ export default function Landing() {
 
         <div className="relative z-10 w-full max-w-5xl mx-auto text-center">
           {/* Countdown */}
-          <Countdown />
+          <div className="animate-fade-up">
+            <Countdown />
+          </div>
 
           {/* Headline */}
-          <h1 className="text-6xl md:text-8xl font-extrabold tracking-tighter font-headline leading-[0.9] mb-12">
+          <h1 className="animate-fade-up delay-200 text-6xl md:text-8xl font-extrabold tracking-tighter font-headline leading-[0.9] mb-12">
             Your Identity on <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-container to-primary">
               Bitcoin
@@ -40,22 +50,25 @@ export default function Landing() {
           </h1>
 
           {/* Search Bar */}
-          <div className="mb-20">
+          <div className="animate-fade-up delay-400 mb-20">
             <SearchBar size="hero" />
           </div>
 
           {/* Subtle Metadata */}
-          <div className="font-mono text-[11px] text-outline/40 uppercase tracking-[0.4em] mt-8">
+          <div className="animate-fade-up delay-600 font-mono text-[11px] text-outline/40 uppercase tracking-[0.4em] mt-8">
             Satoshi-Era Integrity • Layer 1 Security
           </div>
         </div>
       </section>
 
       {/* Value Proposition Section */}
-      <section className="max-w-screen-2xl mx-auto px-8 pb-32">
+      <section ref={scrollRef} className="max-w-screen-2xl mx-auto px-8 pb-32">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-10">
           {/* Own Your Identity Card */}
-          <div className="md:col-span-7 bg-surface-container-low rounded-lg overflow-hidden group hover:bg-surface-container transition-colors duration-500">
+          <div
+            className="scroll-reveal md:col-span-7 bg-surface-container-low rounded-lg overflow-hidden group hover:bg-surface-container transition-colors duration-500"
+            style={{ transitionDelay: '0.1s' }}
+          >
             <div className="flex flex-col md:flex-row h-full">
               <div className="p-12 md:w-1/2 flex flex-col justify-between">
                 <div>
@@ -91,7 +104,10 @@ export default function Landing() {
           </div>
 
           {/* Stats Column — Real data */}
-          <div className="md:col-span-5 grid grid-rows-2 gap-10">
+          <div
+            className="scroll-reveal md:col-span-5 grid grid-rows-2 gap-10"
+            style={{ transitionDelay: '0.2s' }}
+          >
             <div className="bg-surface-container-low rounded-lg p-10 flex flex-col justify-center border-l-2 border-primary/20">
               <h3 className="font-mono text-tertiary text-4xl font-bold mb-2">
                 {basePrice ?? '...'}
@@ -109,7 +125,11 @@ export default function Landing() {
           </div>
 
           {/* Infrastructure Card */}
-          <div id="infrastructure" className="md:col-span-12 bg-surface-container-low rounded-lg overflow-hidden group">
+          <div
+            id="infrastructure"
+            className="scroll-reveal md:col-span-12 bg-surface-container-low rounded-lg overflow-hidden group"
+            style={{ transitionDelay: '0.3s' }}
+          >
             <div className="flex flex-col md:flex-row-reverse items-stretch">
               <div className="p-12 md:w-1/2 flex flex-col justify-center">
                 <span className="font-mono text-[10px] text-primary uppercase tracking-widest mb-4 block">
@@ -127,7 +147,7 @@ export default function Landing() {
                     href="#"
                     title="Coming Soon"
                     onClick={(e) => e.preventDefault()}
-                    className="bg-secondary-container text-on-secondary-container px-8 py-3 rounded-full font-headline font-bold transition-transform active:scale-95 opacity-60 cursor-default"
+                    className="animate-glow-pulse bg-secondary-container text-on-secondary-container px-8 py-3 rounded-full font-headline font-bold transition-transform active:scale-95 opacity-60 cursor-default"
                   >
                     Read Whitepaper
                   </a>

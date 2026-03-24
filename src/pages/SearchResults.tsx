@@ -88,11 +88,11 @@ export default function SearchResults() {
   const canRenew = (status === 'grace-period' || status === 'expiring') && isOwnerCheck
 
   return (
-    <main className="pt-32 pb-20 px-6 max-w-6xl mx-auto">
+    <main className="pt-32 pb-20 px-6 max-w-6xl mx-auto animate-fade-in">
       <section className="relative">
         <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bento-glow pointer-events-none" />
 
-        <div className="bg-surface-container-low rounded-xl p-10 md:p-16 relative z-10 overflow-hidden outline outline-1 outline-outline-variant/15">
+        <div className="bg-surface-container-low rounded-xl p-10 md:p-16 relative z-10 overflow-hidden outline outline-1 outline-outline-variant/15 animate-scale-in delay-200">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8 mb-12">
             <div className="space-y-2">
               <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full ${
@@ -104,7 +104,7 @@ export default function SearchResults() {
                 </span>
               </div>
 
-              <h1 className="text-5xl md:text-7xl font-extrabold tracking-tighter font-headline leading-none">
+              <h1 className="text-3xl sm:text-5xl md:text-7xl font-extrabold tracking-tighter font-headline leading-none">
                 {domainName}<span className="text-primary font-mono font-normal">.btc</span>
               </h1>
 
@@ -130,16 +130,16 @@ export default function SearchResults() {
           {/* Pricing Grid */}
           {price && (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-              <div className="bg-surface-container rounded-lg p-6 border-l-2 border-primary/30">
+              <div className="bg-surface-container rounded-lg p-6 border-l-2 border-primary/30 text-center md:text-left">
                 <div className="text-[10px] uppercase tracking-widest text-outline font-mono mb-2">Base Registration</div>
                 <div className="text-2xl font-mono text-on-surface">{formatSats(price.totalPriceSats - price.auctionPriceSats)}</div>
               </div>
-              <div className="bg-surface-container rounded-lg p-6 border-l-2 border-tertiary/30">
+              <div className="bg-surface-container rounded-lg p-6 border-l-2 border-tertiary/30 text-center md:text-left">
                 <div className="text-[10px] uppercase tracking-widest text-outline font-mono mb-2">Auction Premium</div>
                 <div className="text-2xl font-mono text-tertiary">{formatSats(price.auctionPriceSats)}</div>
                 <div className="text-xs text-outline mt-1">Dutch auction — declines per block</div>
               </div>
-              <div className="bg-surface-container rounded-lg p-6 border-l-2 border-outline/30">
+              <div className="bg-surface-container rounded-lg p-6 border-l-2 border-outline/30 text-center md:text-left">
                 <div className="text-[10px] uppercase tracking-widest text-outline font-mono mb-2">Renewal Rate</div>
                 <div className="text-2xl font-mono text-on-surface-variant">{formatSats(price.renewalPerYear)}</div>
                 <div className="text-xs text-outline mt-1">Per annum</div>

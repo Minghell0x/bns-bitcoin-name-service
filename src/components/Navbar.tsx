@@ -12,14 +12,24 @@ export default function Navbar() {
   const location = useLocation()
   const { isConnected } = useWallet()
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [scrolled, setScrolled] = useState(false)
 
   // Close mobile menu on route change
   useEffect(() => {
     setMobileOpen(false)
   }, [location.pathname])
 
+  // Detect scroll for stronger shadow/background
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20)
+    }
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
   return (
-    <nav className="fixed top-0 w-full z-50 glass-nav shadow-2xl shadow-black/40">
+    <nav className={`fixed top-0 w-full z-50 ${scrolled ? 'bg-[#111317]/90 shadow-2xl shadow-black/60' : 'glass-nav shadow-2xl shadow-black/40'} transition-all duration-300`}>
       <div className="flex justify-between items-center px-8 py-4 max-w-screen-2xl mx-auto">
         <Link to="/" className="text-2xl font-extrabold tracking-tighter text-[#E8910C] font-headline">
           BNS

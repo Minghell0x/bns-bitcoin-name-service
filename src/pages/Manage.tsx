@@ -210,13 +210,13 @@ function ManageContent() {
       </Link>
 
       {/* Domain header */}
-      <header className="bg-surface-container-lowest rounded-[2rem] p-8 md:p-12 border border-outline-variant/5">
+      <header className="bg-surface-container-lowest rounded-[2rem] p-8 md:p-12 border border-outline-variant/5 animate-fade-up">
         <div className="flex flex-col md:flex-row md:items-center gap-6 md:gap-10">
           <div className="w-16 h-16 rounded-2xl bg-surface-container-high flex items-center justify-center text-primary font-mono font-bold text-2xl shrink-0">
             {domainName[0]}.
           </div>
           <div className="flex-1 min-w-0 space-y-2">
-            <h1 className="text-4xl md:text-5xl font-extrabold tracking-tighter leading-none font-headline">
+            <h1 className="text-2xl sm:text-4xl md:text-5xl font-extrabold tracking-tighter leading-none font-headline">
               {domainName}<span className="text-primary font-mono font-medium">.btc</span>
             </h1>
             <div className="flex flex-wrap items-center gap-4 mt-3">
@@ -255,7 +255,7 @@ function ManageContent() {
 
       {/* Renew Section */}
       {isOwner && (
-        <section className="bg-surface-container-lowest rounded-[2rem] p-8 md:p-12 border border-outline-variant/5 space-y-8">
+        <section className="bg-surface-container-lowest rounded-[2rem] p-8 md:p-12 border border-outline-variant/5 space-y-8 animate-fade-in delay-200">
           <div className="flex items-center gap-4">
             <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
               <span className="material-symbols-outlined text-primary">autorenew</span>
@@ -338,7 +338,7 @@ function ManageContent() {
 
       {/* Transfer Section */}
       {isOwner && (
-        <section className="bg-surface-container-lowest rounded-[2rem] p-8 md:p-12 border border-outline-variant/5 space-y-8">
+        <section className="bg-surface-container-lowest rounded-[2rem] p-8 md:p-12 border border-outline-variant/5 space-y-8 animate-fade-in delay-200">
           <div className="flex items-center gap-4">
             <div className="w-10 h-10 rounded-xl bg-tertiary/10 flex items-center justify-center">
               <span className="material-symbols-outlined text-tertiary">send</span>
