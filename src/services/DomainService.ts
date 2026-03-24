@@ -105,8 +105,6 @@ export async function reserveDomainTx(
   ])
   const totalPrice = priceResult.properties.totalPriceSats
   const treasuryAddress = treasuryResult.properties.treasuryAddress
-  console.log('[BNS Reserve] treasury:', treasuryAddress, 'price:', totalPrice.toString(), 'name:', name, 'years:', years)
-
   // setTransactionDetails BEFORE simulate
   contract.setTransactionDetails({
     inputs: [],
