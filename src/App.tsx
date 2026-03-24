@@ -1,4 +1,5 @@
 import { Routes, Route } from 'react-router-dom'
+import AnimatedBackground from './components/AnimatedBackground'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
 import Landing from './pages/Landing'
@@ -11,7 +12,8 @@ import Manage from './pages/Manage'
 
 export default function App() {
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col relative">
+      <AnimatedBackground />
       <Navbar />
       <Routes>
         <Route path="/" element={<Landing />} />

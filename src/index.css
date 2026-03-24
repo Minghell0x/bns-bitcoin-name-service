@@ -187,3 +187,27 @@
     to { opacity: 1; transform: translateY(0) scale(1); }
   }
 }
+
+/* Background orb animations — GPU-accelerated transforms only */
+@keyframes bgOrb1 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(-80px, 60px) scale(1.1); }
+  66% { transform: translate(40px, -40px) scale(0.95); }
+}
+
+@keyframes bgOrb2 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(60px, -80px) scale(1.05); }
+  66% { transform: translate(-50px, 30px) scale(1.1); }
+}
+
+@keyframes bgOrb3 {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.02; }
+  50% { transform: translate(-50%, -50%) scale(1.3); opacity: 0.04; }
+}
+
+@keyframes bgSweep {
+  0% { background-position: 200% 200%; }
+  50% { background-position: 0% 0%; }
+  100% { background-position: 200% 200%; }
+}
