@@ -152,7 +152,7 @@ export default function SearchResults() {
             <div className="flex items-center gap-4 mb-8">
               <span className="text-sm text-on-surface-variant font-mono">Registration Period:</span>
               <div className="flex gap-2">
-                {[1, 2, 3, 5].map((y) => (
+                {[1, 2, 3, 5, 10].map((y) => (
                   <button
                     key={y}
                     onClick={() => setYears(y)}
@@ -259,11 +259,11 @@ export default function SearchResults() {
             <h3 className="text-xl font-bold tracking-tight">Ownership Lifecycle</h3>
           </div>
           <p className="text-on-surface-variant leading-relaxed text-sm mb-6">
-            Renewals are available at any time before expiration. Post-expiration, names enter a 90-day
+            Renewals are available at any time before expiration. Post-expiration, names enter a 500-block
             grace period before returning to the public pool.
           </p>
           <ul className="space-y-4">
-            {['Instant resolution to BTC addresses', 'Transferable on secondary markets', 'Subdomain issuance capability'].map(
+            {['On-chain resolution to BTC addresses', 'Subdomain issuance capability'].map(
               (item) => (
                 <li key={item} className="flex items-start gap-3">
                   <span className="material-symbols-outlined text-sm text-primary mt-0.5">check_circle</span>

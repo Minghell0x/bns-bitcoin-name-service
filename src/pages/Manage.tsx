@@ -273,7 +273,7 @@ function ManageContent() {
                 Duration
               </label>
               <div className="flex gap-2">
-                {[1, 2, 3, 4, 5].map((y) => (
+                {[1, 2, 3, 5, 10].map((y) => (
                   <button
                     key={y}
                     onClick={() => setRenewYears(y)}

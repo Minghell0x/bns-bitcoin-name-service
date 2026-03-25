@@ -23,8 +23,10 @@ export function useDomainLookup(name: string, years = 1): DomainLookupResult {
   const fetch = useCallback(async () => {
     if (!name) return
 
+    const cacheKey = `${name}:${years}`
+
     // Check cache first
-    const cached = getCached(name)
+    const cached = getCached(cacheKey)
     if (cached) {
       setDomain(cached.domain)
       setPrice(cached.price)
@@ -45,7 +47,7 @@ export function useDomainLookup(name: string, years = 1): DomainLookupResult {
       setDomain(domainResult.domain)
       setStatus(domainResult.status)
       setPrice(priceResult)
-      setCached(name, domainResult.domain, priceResult)
+      setCached(cacheKey, domainResult.domain, priceResult)
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Failed to look up domain'
       setError(msg)

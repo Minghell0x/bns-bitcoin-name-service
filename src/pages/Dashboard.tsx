@@ -293,7 +293,7 @@ function DashboardContent() {
                                 <div className="space-y-2">
                                   <label className="text-[10px] font-mono uppercase tracking-[0.2em] text-zinc-500">Duration</label>
                                   <div className="flex gap-1.5">
-                                    {[1, 2, 3, 4, 5].map((y) => (
+                                    {[1, 2, 3, 5, 10].map((y) => (
                                       <button
                                         key={y}
                                         onClick={() => handleRenewYearsChange(d.name, y)}
@@ -362,16 +362,6 @@ function DashboardContent() {
               <p className="text-lg font-mono font-medium">BtcNameResolver</p>
             </div>
           </div>
-        </div>
-        <div className="bg-surface-container-low rounded-2xl p-6 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <span className="material-symbols-outlined text-primary">security</span>
-            <div>
-              <p className="text-sm font-bold font-headline">Cold Storage Recommendation</p>
-              <p className="text-xs text-zinc-500">Transfer high-value domains to a hardware wallet.</p>
-            </div>
-          </div>
-          <button className="text-xs font-mono text-primary hover:underline underline-offset-4">Learn More</button>
         </div>
       </section>
     </main>
