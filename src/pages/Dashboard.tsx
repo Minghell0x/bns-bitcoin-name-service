@@ -71,7 +71,6 @@ function DashboardContent() {
     if (!walletAddress) return
     setLoading(true)
     const names = getOwnedDomainNames(walletAddress)
-    console.log('[BNS Dashboard] walletAddress:', walletAddress, 'stored domains:', names, 'addressHex:', addressHex)
     const results: EnrichedDomain[] = []
 
     for (const name of names) {
@@ -105,23 +104,35 @@ function DashboardContent() {
     if (!importName || !walletAddress) return
     setImporting(true)
     setImportError(null)
-    const cleaned = importName.trim().toLowerCase().replace(/\.btc$/, '')
-    try {
-      const { domain: info } = await lookupDomain(cleaned)
-      if (!info.exists) {
-        setImportError('Domain not found')
-      } else if (!isOwner(info.owner, info.ownerHex, info.ownerP2tr, walletAddress, addressHex)) {
-        setImportError('You are not the owner of this domain')
-      } else {
-        addOwnedDomain(walletAddress, cleaned)
-        setImportName('')
-        await loadDomains()
+    // Support comma-separated bulk import
+    const names = importName.split(',').map((n) => n.trim().toLowerCase().replace(/\.btc$/, '')).filter(Boolean)
+    const errors: string[] = []
+    let added = 0
+
+    for (const name of names) {
+      try {
+        const { domain: info } = await lookupDomain(name)
+        if (!info.exists) {
+          errors.push(`${name}: not found`)
+        } else if (addressHex && !isOwner(info.owner, info.ownerHex, info.ownerP2tr, walletAddress, addressHex)) {
+          errors.push(`${name}: not your domain`)
+        } else {
+          addOwnedDomain(walletAddress, name)
+          added++
+        }
+      } catch {
+        errors.push(`${name}: lookup failed`)
       }
-    } catch {
-      setImportError('Failed to verify domain ownership')
-    } finally {
-      setImporting(false)
     }
+
+    if (added > 0) {
+      setImportName('')
+      await loadDomains()
+    }
+    if (errors.length > 0) {
+      setImportError(errors.join(' • '))
+    }
+    setImporting(false)
   }
 
   async function openRenewal(domainName: string) {
@@ -195,8 +206,8 @@ function DashboardContent() {
           <input
             value={importName}
             onChange={(e) => setImportName(e.target.value)}
-            placeholder="mydomain.btc"
-            className="bg-surface-container-highest rounded-xl px-4 py-2 text-sm font-mono border-none focus:ring-0 focus:outline-none text-on-surface placeholder:text-outline/50 w-full sm:w-48"
+            placeholder="name1, name2, name3"
+            className="bg-surface-container-highest rounded-xl px-4 py-2 text-sm font-mono border-none focus:ring-0 focus:outline-none text-on-surface placeholder:text-outline/50 w-full sm:w-64"
           />
           <button
             onClick={handleImport}
@@ -223,8 +234,9 @@ function DashboardContent() {
         ) : domains.length === 0 ? (
           <div className="bg-surface-container-lowest rounded-[2rem] p-16 text-center border border-outline-variant/5">
             <span className="material-symbols-outlined text-5xl text-outline mb-4">domain_disabled</span>
-            <h3 className="text-xl font-bold mb-2">No domains yet</h3>
-            <p className="text-on-surface-variant text-sm mb-6">Register your first .btc domain or import an existing one.</p>
+            <h3 className="text-xl font-bold mb-2">No domains found</h3>
+            <p className="text-on-surface-variant text-sm mb-2">Already own .btc domains? Use the import field above to add them.</p>
+            <p className="text-slate-500 text-xs font-mono">Enter domain names separated by commas (e.g. ciao, bitcoin, hal)</p>
           </div>
         ) : (
           <div className="bg-surface-container-lowest rounded-[2rem] overflow-hidden border border-outline-variant/5">
