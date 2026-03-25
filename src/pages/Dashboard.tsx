@@ -68,7 +68,7 @@ function DashboardContent() {
   const [renewError, setRenewError] = useState<string | null>(null)
 
   const loadDomains = useCallback(async () => {
-    if (!walletAddress || !addressHex) return
+    if (!walletAddress) return
     setLoading(true)
     const names = getOwnedDomainNames(walletAddress)
     const results: EnrichedDomain[] = []
@@ -76,7 +76,12 @@ function DashboardContent() {
     for (const name of names) {
       try {
         const { domain: info } = await lookupDomain(name)
-        if (info.exists && isOwner(info.owner, info.ownerHex, info.ownerP2tr, walletAddress, addressHex)) {
+        if (!info.exists) continue
+        // If we have addressHex, verify ownership. Otherwise show all stored domains.
+        const owned = addressHex
+          ? isOwner(info.owner, info.ownerHex, info.ownerP2tr, walletAddress, addressHex)
+          : true
+        if (owned) {
           const days = daysUntilExpiry(info.expiresAt)
           let status: EnrichedDomain['status'] = 'active'
           if (info.inGracePeriod) status = 'grace-period'
