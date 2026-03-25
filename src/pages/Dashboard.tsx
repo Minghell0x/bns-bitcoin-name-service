@@ -71,6 +71,7 @@ function DashboardContent() {
     if (!walletAddress) return
     setLoading(true)
     const names = getOwnedDomainNames(walletAddress)
+    console.log('[BNS Dashboard] walletAddress:', walletAddress, 'stored domains:', names, 'addressHex:', addressHex)
     const results: EnrichedDomain[] = []
 
     for (const name of names) {
