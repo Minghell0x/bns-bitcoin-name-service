@@ -477,6 +477,20 @@ export const BtcNameResolverAbi = [
         ],
         type: BitcoinAbiTypes.Function,
     },
+    {
+        name: 'getDomainsByOwner',
+        inputs: [
+            { name: 'owner', type: ABIDataTypes.ADDRESS },
+            { name: 'offset', type: ABIDataTypes.UINT64 },
+            { name: 'limit', type: ABIDataTypes.UINT64 },
+        ],
+        outputs: [
+            { name: 'total', type: ABIDataTypes.UINT64 },
+            { name: 'keys', type: ABIDataTypes.ARRAY_OF_BYTES },
+            { name: 'names', type: ABIDataTypes.ARRAY_OF_STRING },
+        ],
+        type: BitcoinAbiTypes.Function,
+    },
     ...BtcNameResolverEvents,
     ...OP_NET_ABI,
 ];

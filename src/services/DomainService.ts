@@ -73,6 +73,27 @@ export async function resolveDomain(name: string): Promise<string> {
   return result.properties.owner?.toString() ?? ''
 }
 
+/** Fetch all domain names owned by a given address (paginated). */
+export async function fetchDomainNamesByOwner(ownerAddress: Address): Promise<string[]> {
+  const contract = await getNameResolverContract()
+  const allNames: string[] = []
+  const pageSize = 50n
+  let offset = 0n
+
+  // Paginate through all domains
+  // eslint-disable-next-line no-constant-condition
+  while (true) {
+    const result = await contract.getDomainsByOwner(ownerAddress, offset, pageSize)
+    const names = result.properties.names ?? []
+    allNames.push(...names)
+    const total = result.properties.total
+    if (offset + pageSize >= total) break
+    offset += pageSize
+  }
+
+  return allNames
+}
+
 // ─── WRITE METHODS (wallet required) ────────────────────────────
 // Pattern: simulate → sendTransaction with signer=null (OP_WALLET signs)
 // CRITICAL: must include network in txParams (incident INC-mmuv8exw)

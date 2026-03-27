@@ -384,6 +384,18 @@ export type GetReservation = CallResult<
     OPNetEvent<never>[]
 >;
 
+/**
+ * @description Represents the result of the getDomainsByOwner function call.
+ */
+export type GetDomainsByOwner = CallResult<
+    {
+        total: bigint;
+        keys: Uint8Array[];
+        names: string[];
+    },
+    OPNetEvent<never>[]
+>;
+
 // ------------------------------------------------------------------
 // Tuple Types
 // ------------------------------------------------------------------
@@ -442,4 +454,5 @@ export interface IBtcNameResolver extends IOP_NETContract {
     getBaseDomainPrice(): Promise<GetBaseDomainPrice>;
     getDomainNonce(domainName: string): Promise<GetDomainNonce>;
     getReservation(domainName: string): Promise<GetReservation>;
+    getDomainsByOwner(owner: Address, offset: bigint, limit: bigint): Promise<GetDomainsByOwner>;
 }

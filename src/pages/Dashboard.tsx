@@ -4,9 +4,8 @@ import SearchBar from '../components/SearchBar'
 import WalletGuard from '../components/WalletGuard'
 import LoadingSkeleton from '../components/LoadingSkeleton'
 import { useWallet } from '../contexts/WalletContext'
-import { lookupDomain, renewDomainTx, fetchDomainPrice } from '../services/DomainService'
-import { getOwnedDomainNames, addOwnedDomain } from '../utils/storage'
-import { formatAddress, formatDate, formatSats, daysUntilExpiry, isOwner } from '../utils/formatting'
+import { lookupDomain, renewDomainTx, fetchDomainPrice, fetchDomainNamesByOwner } from '../services/DomainService'
+import { formatAddress, formatDate, formatSats, daysUntilExpiry } from '../utils/formatting'
 import type { DomainInfo } from '../types'
 
 interface EnrichedDomain {
@@ -52,14 +51,10 @@ export default function Dashboard() {
 }
 
 function DashboardContent() {
-  const { walletAddress, provider: walletProvider, address, addressHex } = useWallet()
+  const { walletAddress, provider: walletProvider, address } = useWallet()
   const navigate = useNavigate()
   const [domains, setDomains] = useState<EnrichedDomain[]>([])
   const [loading, setLoading] = useState(true)
-  const [importName, setImportName] = useState('')
-  const [importError, setImportError] = useState<string | null>(null)
-  const [importing, setImporting] = useState(false)
-
   // Inline renewal state
   const [renewingDomain, setRenewingDomain] = useState<string | null>(null)
   const [renewYears, setRenewYears] = useState(1)
@@ -68,72 +63,38 @@ function DashboardContent() {
   const [renewError, setRenewError] = useState<string | null>(null)
 
   const loadDomains = useCallback(async () => {
-    if (!walletAddress) return
+    if (!address) return
     setLoading(true)
-    const names = getOwnedDomainNames(walletAddress)
-    const results: EnrichedDomain[] = []
+    try {
+      // Fetch domain names from contract via getDomainsByOwner (paginated)
+      const names = await fetchDomainNamesByOwner(address)
+      const results: EnrichedDomain[] = []
 
-    for (const name of names) {
-      try {
-        const { domain: info } = await lookupDomain(name)
-        if (!info.exists) continue
-        // If we have addressHex, verify ownership. Otherwise show all stored domains.
-        const owned = addressHex
-          ? isOwner(info.owner, info.ownerHex, info.ownerP2tr, walletAddress, addressHex)
-          : true
-        if (owned) {
+      for (const name of names) {
+        try {
+          const { domain: info } = await lookupDomain(name)
+          if (!info.exists || !info.isActive) continue
           const days = daysUntilExpiry(info.expiresAt)
           let status: EnrichedDomain['status'] = 'active'
           if (info.inGracePeriod) status = 'grace-period'
           else if (days < 30) status = 'expiring'
           results.push({ name, info, daysLeft: days, status })
+        } catch {
+          // Domain lookup failed, skip
         }
-      } catch {
-        // Domain lookup failed, skip
       }
+      setDomains(results)
+    } catch (err) {
+      console.error('[BNS Dashboard] Failed to fetch domains:', err)
+      setDomains([])
+    } finally {
+      setLoading(false)
     }
-    setDomains(results)
-    setLoading(false)
-  }, [walletAddress, addressHex])
+  }, [address])
 
   useEffect(() => {
     loadDomains()
   }, [loadDomains])
-
-  async function handleImport() {
-    if (!importName || !walletAddress) return
-    setImporting(true)
-    setImportError(null)
-    // Support comma-separated bulk import
-    const names = importName.split(',').map((n) => n.trim().toLowerCase().replace(/\.btc$/, '')).filter(Boolean)
-    const errors: string[] = []
-    let added = 0
-
-    for (const name of names) {
-      try {
-        const { domain: info } = await lookupDomain(name)
-        if (!info.exists) {
-          errors.push(`${name}: not found`)
-        } else if (addressHex && !isOwner(info.owner, info.ownerHex, info.ownerP2tr, walletAddress, addressHex)) {
-          errors.push(`${name}: not your domain`)
-        } else {
-          addOwnedDomain(walletAddress, name)
-          added++
-        }
-      } catch {
-        errors.push(`${name}: lookup failed`)
-      }
-    }
-
-    if (added > 0) {
-      setImportName('')
-      await loadDomains()
-    }
-    if (errors.length > 0) {
-      setImportError(errors.join(' • '))
-    }
-    setImporting(false)
-  }
 
   async function openRenewal(domainName: string) {
     setRenewingDomain(domainName)
@@ -196,30 +157,6 @@ function DashboardContent() {
         </div>
       </header>
 
-      {/* Import Domain */}
-      <section className="bg-surface-container-low rounded-2xl p-6 flex flex-col sm:flex-row gap-4 items-start sm:items-center animate-fade-in delay-200">
-        <div className="flex-1">
-          <p className="text-sm font-bold mb-1">Import Existing Domain</p>
-          <p className="text-xs text-on-surface-variant">Already own a .btc domain? Add it to your dashboard.</p>
-        </div>
-        <div className="flex gap-2 w-full sm:w-auto">
-          <input
-            value={importName}
-            onChange={(e) => setImportName(e.target.value)}
-            placeholder="name1, name2, name3"
-            className="bg-surface-container-highest rounded-xl px-4 py-2 text-sm font-mono border-none focus:ring-0 focus:outline-none text-on-surface placeholder:text-outline/50 w-full sm:w-64"
-          />
-          <button
-            onClick={handleImport}
-            disabled={importing || !importName}
-            className="px-6 py-2 rounded-full bg-primary text-[#2b1700] font-bold text-sm whitespace-nowrap disabled:opacity-50"
-          >
-            {importing ? '...' : 'Import'}
-          </button>
-        </div>
-        {importError && <p className="text-error text-xs">{importError}</p>}
-      </section>
-
       {/* Domain Table */}
       <section className="space-y-8 animate-fade-in delay-300">
         <div className="flex justify-between items-end">
@@ -234,9 +171,8 @@ function DashboardContent() {
         ) : domains.length === 0 ? (
           <div className="bg-surface-container-lowest rounded-[2rem] p-16 text-center border border-outline-variant/5">
             <span className="material-symbols-outlined text-5xl text-outline mb-4">domain_disabled</span>
-            <h3 className="text-xl font-bold mb-2">No domains found</h3>
-            <p className="text-on-surface-variant text-sm mb-2">Already own .btc domains? Use the import field above to add them.</p>
-            <p className="text-slate-500 text-xs font-mono">Enter domain names separated by commas (e.g. ciao, bitcoin, hal)</p>
+            <h3 className="text-xl font-bold mb-2">No domains yet</h3>
+            <p className="text-on-surface-variant text-sm mb-6">Register your first .btc domain or import an existing one.</p>
           </div>
         ) : (
           <div className="bg-surface-container-lowest rounded-[2rem] overflow-hidden border border-outline-variant/5">

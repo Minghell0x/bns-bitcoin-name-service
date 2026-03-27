@@ -780,6 +780,40 @@
                     "type": "BOOL"
                 }
             ]
+        },
+        {
+            "name": "getDomainsByOwner",
+            "type": "Function",
+            "payable": false,
+            "onlyOwner": false,
+            "inputs": [
+                {
+                    "name": "owner",
+                    "type": "ADDRESS"
+                },
+                {
+                    "name": "offset",
+                    "type": "UINT64"
+                },
+                {
+                    "name": "limit",
+                    "type": "UINT64"
+                }
+            ],
+            "outputs": [
+                {
+                    "name": "total",
+                    "type": "UINT64"
+                },
+                {
+                    "name": "keys",
+                    "type": "ARRAY_OF_BYTES"
+                },
+                {
+                    "name": "names",
+                    "type": "ARRAY_OF_STRING"
+                }
+            ]
         }
     ],
     "events": [

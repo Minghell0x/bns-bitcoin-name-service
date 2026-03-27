@@ -4,7 +4,7 @@ const footerLinks = [
   { label: 'Documentation', href: '#', comingSoon: true },
   {
     label: 'Smart Contracts',
-    href: 'https://testnet.opnet.org/address/0x9fbe00d8bcdf4fe5387c4e11324b8254b8eb7b3879130213ac0ed854f3f5ee23',
+    href: 'https://testnet.opnet.org/address/0xc9049fb7a443ca24f371f94c6b0d5fbe3b12d5dd46e252c1eb3e2a935d4e0294',
     comingSoon: false,
   },
   { label: 'API', href: '#', comingSoon: true },

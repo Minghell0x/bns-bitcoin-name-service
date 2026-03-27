@@ -1,5 +1,5 @@
-export const CONTRACT_ADDRESS = '0x9fbe00d8bcdf4fe5387c4e11324b8254b8eb7b3879130213ac0ed854f3f5ee23'
-export const CONTRACT_P2OP = 'opt1sqzwf2c80xr78g8qatrlh6ucpu5c5vr0y3g0xxjx7'
+export const CONTRACT_ADDRESS = '0xc9049fb7a443ca24f371f94c6b0d5fbe3b12d5dd46e252c1eb3e2a935d4e0294'
+export const CONTRACT_P2OP = 'opt1sqzm3tztdrvh08q39tv6l9ee0hzcvm9r7xgmf8nsd'
 
 export const RPC_URL = 'https://testnet.opnet.org'
 
